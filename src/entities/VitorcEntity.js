@@ -14,53 +14,66 @@ define(
 
                 this.parent(x, y, settings);
 
+                this.addAnimation("stand", [0]);
                 this.addAnimation("move", [0, 1, 2, 3, 4, 0, 5, 6, 7, 8]);
-                this.setCurrentAnimation("move");
+                this.addAnimation("jump", [3]);
+
+                this.setCurrentAnimation("stand");
+
                 this.animationspeed = 2;
 
-                this.setVelocity(1.5, 0);
-
-                this.state = "stand";
-                this.updated = false;
+                this.setVelocity(1.5, 3);
+                this.gravity = 0.1;
             },
 
             update: function () {
-                 this.handleInput();
-
-                if (this.state == "walkRight") {
-                    this.doWalk(false);
-                    this.parent();
-                    this.updated = true;
-                }
-                else if (this.state == "walkLeft") {
-                    this.doWalk(true);
-                    this.parent();
-                    this.updated = true;
-                }
-                else if (this.state == "stand") {
-                    this.vel.x = 0;
-                    this.setAnimationFrame(0);
-                    this.updated = true;
-                }
-
+                this.handleInput();
                 this.updateMovement();
 
-                return this.updated;
-            },
+          
 
-            handleInput: function () {
-                if (me.input.isKeyPressed("right")) {
-                    this.state = "walkRight";
-                }
-                else if (me.input.isKeyPressed("left")) {
-                    this.state = "walkLeft";
-                }
-                else {
-                    this.state = "stand";
-                }
-            },
+                    if (this.isCurrentAnimation("jump") && this.isOnTheGround()) {
+                        this.setCurrentAnimation("stand");
+                    }
+                
+                    this.parent();
+                    return true;
+                },
 
-        });
+                handleInput: function () {
+                    if (this.isCurrentAnimation("jump")) {
+                        return;
+                    }
+
+                    if (me.input.isKeyPressed("right")) {
+                        this.setCurrentAnimation("move");
+                        this.doWalk(false);
+                    }
+                    else if (me.input.isKeyPressed("left")) {
+                        this.setCurrentAnimation("move");
+                        this.doWalk(true);
+                    }
+
+                    if (me.input.isKeyPressed("jump")) {
+                        this.setCurrentAnimation("jump");
+                        this.doJump();
+                    }
+                   
+
+                        if (!me.input.isKeyPressed("right") &&
+                            !me.input.isKeyPressed("left") &&
+                            !me.input.isKeyPressed("jump")
+                        ) {
+                            this.setCurrentAnimation("stand");
+                            this.vel.x = 0;
+                        }
+                    },
+
+                    isOnTheGround: function () {
+                        return !this.jumping && !this.falling;
+                    },
+
+                });
 
         return VitorcEntity;
 

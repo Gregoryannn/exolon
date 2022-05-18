@@ -1,7 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\css",
+    "\\src",
+    "\\src\\entities",
+    "\\src\\resources",
+    "\\src\\screens"
   ],
-  "SelectedNode": "\\C:\\Users\\asus\\Source\\Repos\\exolon",
+  "SelectedNode": "\\src\\entities\\VitorcEntity.js",
   "PreviewInSolutionExplorer": false
 }
