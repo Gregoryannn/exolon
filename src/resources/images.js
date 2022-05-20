@@ -1,6 +1,35 @@
 define(function () {
 
     var images = [
+
+        // fonts
+        {
+            name: "font_white",
+            type: "image",
+            src: "images/font_white.gif",
+        },
+        {
+            name: "font_cyan",
+            type: "image",
+            src: "images/font_cyan.gif",
+        },
+        {
+            name: "font_green",
+            type: "image",
+            src: "images/font_green.gif",
+        },
+        {
+            name: "font_purple",
+            type: "image",
+            src: "images/font_purple.gif",
+        },
+        {
+            name: "font_yellow",
+            type: "image",
+            src: "images/font_yellow.gif",
+        },
+
+        // tiles
         {
             name: "metatiles",
             type: "image",
@@ -21,6 +50,8 @@ define(function () {
             type: "image",
             src: "images/gate.gif",
         },
+
+        // entities
         {
             name: "vitorc",
             type: "image",
@@ -35,6 +66,11 @@ define(function () {
             name: "grenade",
             type: "image",
             src: "images/grenade.gif",
+        },
+        {
+            name: "grenade_trace",
+            type: "image",
+            src: "images/grenade_trace.gif",
         },
         {
             name: "ship_fire",
