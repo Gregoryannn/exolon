@@ -1,9 +1,11 @@
 define(
     [
-        "src/me"
+    "src/me",
+        "src/global",
     ],
     function (
-        me
+    me,
+        global
     ) {
 
         var GrenadeEntity = me.ObjectEntity.extend({
@@ -28,7 +30,7 @@ define(
 
             update: function () {
                 if (this.falling) {
-                  this.horizontalFlyTimer++;
+                    this.horizontalFlyTimer++;
                     if (this.horizontalFlyTimer > this.horizontalFlyDuration) {
                         this.vel.x = this.direction == "right" ? GrenadeEntity.DOWN_VEL_X : -GrenadeEntity.DOWN_VEL_X;
                         this.gravity = GrenadeEntity.DOWN_GRAVITY;
@@ -48,6 +50,7 @@ define(
 
                 if (this.vel.x == 0 || this.vel.y == 0) {
                     me.game.remove(this);
+                    global.aliveGrenadesCount--;
                 }
 
                 return true;
@@ -56,6 +59,7 @@ define(
         });
 
         GrenadeEntity.WIDTH = 16;
+
         GrenadeEntity.VEL_Y = 3.6;
         GrenadeEntity.UP_VEL_X = 1.3;
         GrenadeEntity.UP_GRAVITY = 0.2;
