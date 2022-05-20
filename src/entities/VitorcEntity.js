@@ -3,11 +3,13 @@ define(
         "src/me",
         "src/entities/BlasterBulletEntity",
         "src/entities/GrenadeEntity",
+        "src/entities/GrenadeTraceEntity",
     ],
     function (
         me,
-    BlasterBulletEntity,
-        GrenadeEntity
+        BlasterBulletEntity,
+        GrenadeEntity,
+        GrenadeTraceEntity
     ) {
 
         var VitorcEntity = me.ObjectEntity.extend({
@@ -15,9 +17,7 @@ define(
             init: function (x, y, settings) {
                 settings.image = "vitorc";
                 settings.spritewidth = 48;
-
                 this.parent(x, y, settings);
-
                 this.addAnimation("stand", [0]);
                 this.addAnimation("move", [0, 1, 2, 3, 4, 0, 5, 6, 7, 8]);
                 this.addAnimation("jump", [3]);
@@ -31,7 +31,7 @@ define(
                 this.gravity = 0.1;
 
                 this.firePressed = false;
-                this.grenadeLaunchDuration = 30;
+                this.grenadeLaunchDuration = 80;
                 this.grenadeLaunchTimer = 0;
 
                 this.direction = "right";
@@ -108,74 +108,104 @@ define(
                 }
             },
 
-                     fireBlaster: function () {
-                        if (this.firePressed) {
-                            return;
-                        }
-                        var pos = this.getBlasterBulletPosition();
-                        var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
-                        me.game.add(bullet, this.z);
-                        me.game.sort();
-                    },
+            fireBlaster: function () {
+                if (this.firePressed) {
+                    return;
+                }
+                var pos = this.getBlasterBulletPosition();
+                var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
+                me.game.add(bullet, this.z);
+                me.game.sort();
+            },
 
-                    fireGrenade: function () {
-                        var pos = this.getGrenadePosition();
-                        var grenade = new GrenadeEntity(pos.x, pos.y, this.direction);
-                        me.game.add(grenade, this.z);
-                        me.game.sort();
-                    },
+            fireGrenade: function () {
+                var grenadePos = this.getGrenadePosition();
+                var grenade = new GrenadeEntity(grenadePos.x, grenadePos.y, this.direction);
+                me.game.add(grenade, this.z);
 
-                    getBlasterBulletPosition: function () {
-                        var pos = {};
+                var tracePos = this.getGrenadeTracePosition();
+                var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
+                me.game.add(trace, this.z);
 
-                        if (this.direction == "right") {
-                            pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                        }
-                        else {
-                            pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                        }
+                me.game.sort();
+            },
 
-                        if (this.isCurrentAnimation("duck")) {
-                            pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                        }
-                        else {
-                            pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
-                        }
+            getBlasterBulletPosition: function () {
+                var pos = {};
 
-                        return pos;
-                    },
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                }
 
-                    getGrenadePosition: function () {
-                        var pos = {};
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
+                }
 
-                        if (this.direction == "right") {
-                            pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
-                        }
-                        else {
-                            pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
-                        }
+                return pos;
+            },
 
-                        if (this.isCurrentAnimation("duck")) {
-                            pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                        }
-                        else {
-                            pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
-                        }
+            getGrenadePosition: function () {
+                var pos = {};
 
-                        return pos;
-                    },
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
+                }
 
-                    isOnTheGround: function () {
-                        return !this.jumping && !this.falling;
-                    },
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
+                }
 
-                });
+                return pos;
+            },
+
+            getGrenadeTracePosition: function () {
+                var pos = {};
+
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x + this.width - GrenadeTraceEntity.WIDTH - VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                }
+
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y;
+                }
+
+                return pos;
+            },
+
+            isOnTheGround: function () {
+                return !this.jumping && !this.falling;
+            },
+
+        });
 
         VitorcEntity.DUCK_OFFSET = 10;
+
         VitorcEntity.BLASTER_BULLET_OFFSET_X = 2;
         VitorcEntity.BLASTER_BULLET_OFFSET_Y = 30;
+
         VitorcEntity.GRENADE_OFFSET_X = 20;
         VitorcEntity.GRENADE_OFFSET_Y = 7;
+
+        VitorcEntity.GRENADE_TRACE_OFFSET_X = 4;
+        VitorcEntity.GRENADE_TRACE_OFFSET_Y = 5;
 
         return VitorcEntity;
 
