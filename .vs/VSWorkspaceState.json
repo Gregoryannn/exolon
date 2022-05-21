@@ -2,12 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\css",
+    "\\hud",
     "\\maps",
     "\\src",
     "\\src\\entities",
     "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\src\\entities\\VitorcEntity.js",
+  "SelectedNode": "\\hud\\AmmoHUD.js",
   "PreviewInSolutionExplorer": false
 }
