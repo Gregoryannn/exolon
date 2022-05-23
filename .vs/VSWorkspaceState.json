@@ -9,6 +9,6 @@
     "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\hud\\AmmoHUD.js",
+  "SelectedNode": "\\src\\screens\\PlayScreen.js",
   "PreviewInSolutionExplorer": false
 }
