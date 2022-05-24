@@ -35,11 +35,11 @@ define(
                     this.createExplosion();
                     me.game.remove(this.tube);
                     me.game.remove(this);
+                    me.game.HUD.updateItemValue("points", 150);
                 }
             },
 
             createExplosion: function () {
-                // to be implemented
                 for (var i = 0; i < TurretEntity.EXPLOSION_PARTICLES_COUNT; ++i) {
                     var particle = new ExplosionParticleEntity(this.pos.x + this.width / 2, this.pos.y + this.height / 2);
                     me.game.add(particle, this.z);
