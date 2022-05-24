@@ -4,8 +4,7 @@ define(
         "src/entities/BlasterExplosion",
     ],
     function (
-        me
-    me,
+        me,
         BlasterExplosion
     ) {
 
@@ -16,6 +15,8 @@ define(
                 settings.image = "blaster_bullet";
                 this.parent(x, y, settings);
 
+                this.name = "blaster_bullet";
+
                 this.direction = direction;
                 this.gravity = 0;
                 this.passedDistance = 0;
@@ -24,7 +25,6 @@ define(
             update: function () {
                 this.updateVelocity();
                 this.updateMovement();
-
                 this.updatePassedDistance();
                 this.handleCollisions();
                 return true;
@@ -36,31 +36,34 @@ define(
 
             updatePassedDistance: function () {
                 this.passedDistance += BlasterBulletEntity.SPEED;
-                    if (this.passedDistance > BlasterBulletEntity.RANGE) {
-                        me.game.remove(this);
-                    }
-                },
+                if (this.passedDistance > BlasterBulletEntity.RANGE) {
+                    me.game.remove(this);
+                }
+            },
 
-                handleCollisions: function () {
-                    var res = me.game.collide(this);
+            handleCollisions: function () {
+                var res = me.game.collide(this);
 
-                    if (this.vel.x == 0 || res) {
-                        me.game.remove(this);
-                        this.createExplosion();
-                    }
-                },
+                if (this.vel.x == 0 || res) {
+                    me.game.remove(this);
+                }
 
-                createExplosion: function () {
-                    var explosion = new BlasterExplosion(this.pos.x, this.pos.y + 8);
-                    me.game.add(explosion, this.z);
-                    me.game.sort();
-                },
+                if (res) {
+                    this.createExplosion();
+                }
+            },
 
-                onDestroyEvent: function () {
-                    me.gamestat.updateValue("aliveBlasterBulletCount", -1);
-                },
+            createExplosion: function () {
+                var explosion = new BlasterExplosion(this.pos.x, this.pos.y + 8);
+                me.game.add(explosion, this.z);
+                me.game.sort();
+            },
 
-            });
+            onDestroyEvent: function () {
+                me.gamestat.updateValue("aliveBlasterBulletCount", -1);
+            },
+
+        });
 
         BlasterBulletEntity.SPEED = 6;
         BlasterBulletEntity.WIDTH = 16;

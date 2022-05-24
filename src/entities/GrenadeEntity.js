@@ -13,6 +13,8 @@ define(
                 settings.image = "grenade";
                 this.parent(x, y, settings);
 
+                this.name = "grenade";
+
                 this.direction = direction;
 
                 if (this.direction == "left") {
@@ -27,6 +29,13 @@ define(
             },
 
             update: function () {
+                this.updateVelocityAndGravity();
+                this.updateMovement();
+                this.handleCollisions();
+                return true;
+            },
+
+            updateVelocityAndGravity: function () {
                 if (this.falling) {
                     this.horizontalFlyTimer++;
                     if (this.horizontalFlyTimer > this.horizontalFlyDuration) {
@@ -42,22 +51,22 @@ define(
                     this.gravity = GrenadeEntity.UP_GRAVITY;
                     this.vel.x = this.direction == "right" ? GrenadeEntity.UP_VEL_X : -GrenadeEntity.UP_VEL_X;
                 }
-
-                this.updateMovement();
-
-
-                if (this.vel.x == 0 || this.vel.y == 0) {
-                    me.game.remove(this);
-                }
-
-                return true;
             },
 
-            onDestroyEvent: function () {
-                me.gamestat.updateValue("aliveGrenadesCount", -1);
-            },
+            handleCollisions: function () {
+                var res = me.game.collide(this);
 
-        });
+                    if (res || this.vel.x == 0 || this.vel.y == 0) {
+                        me.game.remove(this);
+                    }
+
+                },
+
+                onDestroyEvent: function () {
+                    me.gamestat.updateValue("aliveGrenadesCount", -1);
+                },
+
+            });
 
         GrenadeEntity.WIDTH = 16;
 
