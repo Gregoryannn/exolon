@@ -56,10 +56,9 @@ define(
             handleCollisions: function () {
                 var res = me.game.collide(this);
 
-                    if (res || this.vel.x == 0 || this.vel.y == 0) {
+                    if ((res && res.obj.name != "vitorc") || this.vel.x == 0 || this.vel.y == 0) {
                         me.game.remove(this);
                     }
-
                 },
 
                 onDestroyEvent: function () {
