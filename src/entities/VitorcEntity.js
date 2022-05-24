@@ -46,7 +46,6 @@ define(
             },
 
             update: function () {
-
                 this.updateJump();
                 this.updateDieTimer();
                 this.handleInput();
@@ -133,8 +132,7 @@ define(
 
             handleInputOnTheGround: function () {
                 if (me.input.isKeyPressed("duck")) {
-                    this.setCurrentAnimation("duck");
-                    this.vel.x = 0;
+                    this.duck();
                     return;
                 }
 
@@ -158,8 +156,7 @@ define(
                     !me.input.isKeyPressed("left") &&
                     !me.input.isKeyPressed("jump")
                 ) {
-                    this.setCurrentAnimation("stand");
-                    this.vel.x = 0;
+                     this.stand();
                 }
             },
 
@@ -189,15 +186,26 @@ define(
 
                 var tracePos = this.getGrenadeTracePosition();
                 var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
+
                 me.game.add(trace, this.z);
-
                 me.game.sort();
-
                 me.gamestat.updateValue("aliveGrenadesCount", 1);
 
                 if (me.game.HUD.getItemValue("grenades") > 0) {
                     me.game.HUD.updateItemValue("grenades", -1);
                 }
+            },
+
+            duck: function () {
+                this.setCurrentAnimation("duck");
+                this.vel.x = 0;
+                this.updateColRect(-1, 0, 11, 53);
+            },
+
+            stand: function () {
+                this.setCurrentAnimation("stand");
+                this.vel.x = 0;
+                this.updateColRect(-1, 0, 0, 64);
             },
 
             die: function () {
