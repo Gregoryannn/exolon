@@ -2,10 +2,12 @@ define(
     [
         "src/me",
         "src/entities/TurretTubeEntity",
+        "src/entities/ExplosionParticleEntity",
     ],
     function (
         me,
-        TurretTubeEntity
+        TurretTubeEntity,
+        ExplosionParticleEntity
     ) {
 
         var TurretEntity = me.ObjectEntity.extend({
@@ -23,7 +25,7 @@ define(
             },
 
             createTube: function (z) {
-               this.tube = new TurretTubeEntity(this.pos.x - TurretTubeEntity.WIDTH, this.pos.y + 32, this);
+                this.tube = new TurretTubeEntity(this.pos.x - TurretTubeEntity.WIDTH, this.pos.y + 32, this);
                 me.game.add(this.tube, z);
                 me.game.sort();
             },
@@ -38,9 +40,17 @@ define(
 
             createExplosion: function () {
                 // to be implemented
+                for (var i = 0; i < TurretEntity.EXPLOSION_PARTICLES_COUNT; ++i) {
+                    var particle = new ExplosionParticleEntity(this.pos.x + this.width / 2, this.pos.y + this.height / 2);
+                    me.game.add(particle, this.z);
+                }
+
+                me.game.sort();
             },
 
         });
+
+        TurretEntity.EXPLOSION_PARTICLES_COUNT = 50;
 
         return TurretEntity;
 

@@ -7,17 +7,24 @@ define(function () {
      */
     util.getRandomInt = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-   
-};
+    };
 
-util.strlpad = function (s, padString, length) {
-    var str = "" + s;
-    while (str.length < length) {
-        str = padString + str;
-    }
-    return str;
-};
+    util.arrayRandomElement = function (arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    };
 
-return util;
+    util.randomSign = function () {
+        return util.arrayRandomElement([-1, 1]);
+    };
+
+    util.strlpad = function (s, padString, length) {
+        var str = "" + s;
+        while (str.length < length) {
+            str = padString + str;
+        }
+        return str;
+    };
+
+    return util;
 
 });
