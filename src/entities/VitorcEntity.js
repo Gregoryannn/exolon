@@ -52,7 +52,9 @@ define(
                 var res = this.updateMovement();
                 this.handleCollisionsWithCollisionMap(res);
                 this.handleCollisionsWithEntities();
-                return this.parent();
+                this.handleNextScreen();
+                this.parent();
+                return true;
             },
 
             updateJump: function () {
@@ -123,6 +125,12 @@ define(
                 }
             },
 
+            handleNextScreen: function () {
+                if (this.pos.x > 510) {
+                    me.state.current().nextLevel();
+                }
+            },
+
             handleFireKey: function () {
                 if (me.input.isKeyPressed("fire")) {
                     this.fireBlaster();
@@ -159,7 +167,6 @@ define(
                     this.setCurrentAnimation("jump");
                     this.doJump();
                 }
-          
             },
 
             fireBlaster: function () {
