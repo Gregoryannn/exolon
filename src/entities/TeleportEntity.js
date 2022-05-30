@@ -3,21 +3,27 @@ define(
         "src/me",
     ],
     function (
-        me
-    ) {
+        define(
+            [
+                "src/me",
+            ],
+            function (
+                me
+            ) {
 
-        var TeleportEntity = me.ObjectEntity.extend({
+                var TeleportEntity = me.ObjectEntity.extend({
 
-            init: function (x, y, settings) {
-                settings.image = "teleport";
-                settings.spritewidth = 64;
-                this.parent(x, y, settings);
+                    init: function (x, y, settings) {
+                        settings.image = "teleport";
+                        settings.spritewidth = 64;
+                        this.parent(x, y, settings);
 
-                this.animationspeed = 1;
-            },
+                        this.collidable = true;
+                        this.animationspeed = 1;
+                    },
 
-        });
+                });
 
-        return TeleportEntity;
+                return TeleportEntity;
 
-    });
+            });

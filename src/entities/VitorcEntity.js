@@ -36,6 +36,8 @@ define(
                 this.gravity = 0.1;
 
                 this.firePressed = false;
+                this.jumpPressed = false;
+
                 this.grenadeFireDuration = 35;
                 this.grenadeFireTimer = 0;
 
@@ -43,6 +45,9 @@ define(
 
                 this.dieTimer = 0;
                 this.dieDuration = 70;
+
+                this.insideTeleport = false;
+                this.thisTeleportGUID = null;
             },
 
             update: function () {
@@ -105,214 +110,267 @@ define(
             },
 
             handleCollisionsWithEntities: function () {
+                this.insideTeleport = false;
+
                 var res = me.game.collide(this);
-                if (res) {
+              
+                    if (!res) {
+                        return;
+                    }
+
+                    this.handleCollisionWithSolidObject(res, res.obj);
+                    this.handleCollisionWithTeleport(res, res.obj);
+                },
+
+                handleCollisionWithSolidObject: function (res, obj) {
+                    if (!obj.isSolid) {
+                        return;
+                    }
+
                     this.pos.sub(res);
 
                     if (this.isOnTheGround()) {
                         this.setCurrentAnimation("stand");
                     }
-                }
-            },
+                },
 
-            onCollision: function (res, obj) {
-                if (this.isCurrentAnimation("die")) {
-                    return;
-                }
+                handleCollisionWithTeleport: function (res, obj) {
+                    if (obj.name == "teleport") {
+                        this.insideTeleport = true;
+                        this.thisTeleportGUID = obj.GUID;
+                    }
+                },
 
-                if (obj.name == "turret_bullet") {
-                    this.die();
-                }
-            },
+                onCollision: function (res, obj) {
+                    if (this.isCurrentAnimation("die")) {
+                        return;
+                    }
 
-            handleNextScreen: function () {
-                if (this.pos.x > 510) {
-                    me.state.current().nextLevel();
-                }
-            },
+                    if (obj.name == "turret_bullet") {
+                        this.die();
+                    }
+                },
 
-            handleFireKey: function () {
-                if (me.input.isKeyPressed("fire")) {
-                    this.fireBlaster();
-                    this.fireGrenade();
-                    this.firePressed = true;
-                    this.grenadeFireTimer++;
-                }
-                else {
-                    this.firePressed = false;
-                    this.grenadeFireTimer = 0;
-                }
-            },
+                handleNextScreen: function () {
+                    if (this.pos.x > 510) {
+                        me.state.current().nextLevel();
+                    }
+                },
 
-            handleInputOnTheGround: function () {
-                if (me.input.isKeyPressed("duck")) {
-                    this.duck();
-                    return;
-                }
+                handleFireKey: function () {
+                    if (me.input.isKeyPressed("fire")) {
+                        this.fireBlaster();
+                        this.fireGrenade();
+                        this.firePressed = true;
+                        this.grenadeFireTimer++;
+                    }
+                    else {
+                        this.firePressed = false;
+                        this.grenadeFireTimer = 0;
+                    }
+                },
 
-                this.stand();
+                handleInputOnTheGround: function () {
+                    if (me.input.isKeyPressed("duck")) {
+                        this.duck();
+                        return;
+                    }
 
-                if (me.input.isKeyPressed("right")) {
-                    this.direction = "right";
-                    this.setCurrentAnimation("move");
-                    this.doWalk(false);
-                }
-                else if (me.input.isKeyPressed("left")) {
-                    this.direction = "left";
-                    this.setCurrentAnimation("move");
-                    this.doWalk(true);
-                }
+                    this.stand();
 
-                if (me.input.isKeyPressed("jump")) {
-                    this.setCurrentAnimation("jump");
-                    this.doJump();
-                }
-            },
+                    if (me.input.isKeyPressed("right")) {
+                        this.direction = "right";
+                        this.setCurrentAnimation("move");
+                        this.doWalk(false);
+                    }
+                    else if (me.input.isKeyPressed("left")) {
+                        this.direction = "left";
+                        this.setCurrentAnimation("move");
+                        this.doWalk(true);
+                    }
 
-            fireBlaster: function () {
-                if (!this.canFireBlaster()) {
-                    return;
-                }
-                var pos = this.getBlasterBulletPosition();
-                var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
-                me.game.add(bullet, this.z);
-                me.game.sort();
+                    if (me.input.isKeyPressed("jump")) {
+                        this.handleJumpKey();
+                    },
 
-                me.gamestat.updateValue("aliveBlasterBulletCount", 1);
+                    handleJumpKey: function () {
+                            this.jumpPressed = false;
+                            return;
+                        }
 
-                if (me.game.HUD.getItemValue("ammo") > 0) {
-                    me.game.HUD.updateItemValue("ammo", -1);
-                }
-            },
+                        if (this.insideTeleport) {
+                            if (!this.jumpPressed) {
+                                this.doTeleport();
+                            }
+                        }
+                        else {
+                            this.setCurrentAnimation("jump");
+                            this.doJump();
+                        }
 
-            fireGrenade: function () {
-                if (!this.canFireGrenade()) {
-                    return;
-                }
-                var grenadePos = this.getGrenadePosition();
-                var grenade = new GrenadeEntity(grenadePos.x, grenadePos.y, this.direction);
-                me.game.add(grenade, this.z);
+                        this.jumpPressed = true;
+                    },
 
-                var tracePos = this.getGrenadeTracePosition();
-                var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
-                me.game.add(trace, this.z);
+                    fireBlaster: function () {
+                        if (!this.canFireBlaster()) {
+                            return;
+                        }
+                        var pos = this.getBlasterBulletPosition();
+                        var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
+                        me.game.add(bullet, this.z);
+                        me.game.sort();
 
-                me.game.sort();
+                        me.gamestat.updateValue("aliveBlasterBulletCount", 1);
 
-                me.gamestat.updateValue("aliveGrenadesCount", 1);
+                        if (me.game.HUD.getItemValue("ammo") > 0) {
+                            me.game.HUD.updateItemValue("ammo", -1);
+                        }
+                    },
 
-                if (me.game.HUD.getItemValue("grenades") > 0) {
-                    me.game.HUD.updateItemValue("grenades", -1);
-                }
-            },
+                    fireGrenade: function () {
+                        if (!this.canFireGrenade()) {
+                            return;
+                        }
+                        var grenadePos = this.getGrenadePosition();
+                        var grenade = new GrenadeEntity(grenadePos.x, grenadePos.y, this.direction);
+                        me.game.add(grenade, this.z);
 
-            duck: function () {
-                this.setCurrentAnimation("duck");
-                this.vel.x = 0;
-                this.updateColRect(-1, 0, 11, 53);
-            },
+                        var tracePos = this.getGrenadeTracePosition();
+                        var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
+                        me.game.add(trace, this.z);
 
-            stand: function () {
-                this.setCurrentAnimation("stand");
-                this.vel.x = 0;
-                this.updateColRect(-1, 0, 0, 64);
-            },
+                        me.game.sort();
 
-            die: function () {
-                me.game.HUD.updateItemValue("lives", -1);
-                this.setCurrentAnimation("die");
-                this.vel.x = 0;
-                this.forceJump();
-            },
+                        me.gamestat.updateValue("aliveGrenadesCount", 1);
 
-            getBlasterBulletPosition: function () {
-                var pos = {};
+                        if (me.game.HUD.getItemValue("grenades") > 0) {
+                            me.game.HUD.updateItemValue("grenades", -1);
+                        }
+                    },
 
-                if (this.direction == "right") {
-                    pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                }
-                else {
-                    pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                }
+                    duck: function () {
+                        this.setCurrentAnimation("duck");
+                        this.vel.x = 0;
+                        this.updateColRect(-1, 0, 11, 53);
+                    },
 
-                if (this.isCurrentAnimation("duck")) {
-                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                }
-                else {
-                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
-                }
+                    stand: function () {
+                        this.setCurrentAnimation("stand");
+                        this.vel.x = 0;
+                        this.updateColRect(-1, 0, 0, 64);
+                    },
 
-                return pos;
-            },
+                    die: function () {
+                        me.game.HUD.updateItemValue("lives", -1);
+                        this.setCurrentAnimation("die");
+                        this.vel.x = 0;
+                        this.forceJump();
+                    },
 
-            getGrenadePosition: function () {
-                var pos = {};
+                    doTeleport: function () {
+                        var otherTeleport = this.getOtherTeleport();
+                        this.pos.x = otherTeleport.pos.x;
+                        this.pos.y = otherTeleport.pos.y + 32;
+                    },
 
-                if (this.direction == "right") {
-                    pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
-                }
-                else {
-                    pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
-                }
+                    getOtherTeleport: function () {
+                        var teleports = me.game.getEntityByName("teleport");
+                        for (var i in teleports) {
+                            if (teleports[i].GUID != this.thisTeleportGUID) {
+                                return teleports[i];
+                            }
+                        }
+                        return null;
+                    },
 
-                if (this.isCurrentAnimation("duck")) {
-                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                }
-                else {
-                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
-                }
+                    getBlasterBulletPosition: function () {
+                        var pos = {};
 
-                return pos;
-            },
+                        if (this.direction == "right") {
+                            pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                        }
+                        else {
+                            pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                        }
 
-            getGrenadeTracePosition: function () {
-                var pos = {};
+                        if (this.isCurrentAnimation("duck")) {
+                            pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                        }
+                        else {
+                            pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
+                        }
 
-                if (this.direction == "right") {
-                    pos.x = this.pos.x + VitorcEntity.GRENADE_TRACE_OFFSET_X;
-                }
-                else {
-                    pos.x = this.pos.x + this.width - GrenadeTraceEntity.WIDTH - VitorcEntity.GRENADE_TRACE_OFFSET_X;
-                }
+                        return pos;
+                    },
 
-                if (this.isCurrentAnimation("duck")) {
-                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                }
-                else {
-                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y;
-                }
+                    getGrenadePosition: function () {
+                        var pos = {};
 
-                return pos;
-            },
+                        if (this.direction == "right") {
+                            pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
+                        }
+                        else {
+                            pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
+                        }
 
-            isOnTheGround: function () {
-                return !this.jumping && !this.falling;
-            },
+                        if (this.isCurrentAnimation("duck")) {
+                            pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                        }
+                        else {
+                            pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
+                        }
 
-            canFireBlaster: function () {
-                if (this.firePressed || me.game.HUD.getItemValue("ammo") == 0) {
-                    return false;
-                }
-                return true;
-            },
+                        return pos;
+                    },
 
-            canFireGrenade: function () {
-                if (me.gamestat.getItemValue("aliveBlasterBulletCount") > 0) {
-                    return false;
-                }
-                if (me.gamestat.getItemValue("aliveGrenadesCount") > 0) {
-                    return false;
-                }
-                if (this.grenadeFireTimer < this.grenadeFireDuration) {
-                    return false;
-                }
-                if (me.game.HUD.getItemValue("grenades") == 0) {
-                    return false;
-                }
-                return true;
-            },
+                    getGrenadeTracePosition: function () {
+                        var pos = {};
 
-        });
+                        if (this.direction == "right") {
+                            pos.x = this.pos.x + VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                        }
+                        else {
+                            pos.x = this.pos.x + this.width - GrenadeTraceEntity.WIDTH - VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                        }
+
+                        if (this.isCurrentAnimation("duck")) {
+                            pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                        }
+                        else {
+                            pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y;
+                        }
+
+                        return pos;
+                    },
+
+                    isOnTheGround: function () {
+                        return !this.jumping && !this.falling;
+                    },
+
+                    canFireBlaster: function () {
+                        if (this.firePressed || me.game.HUD.getItemValue("ammo") == 0) {
+                            return false;
+                        }
+                        return true;
+                    },
+
+                    canFireGrenade: function () {
+                        if (me.gamestat.getItemValue("aliveBlasterBulletCount") > 0) {
+                            return false;
+                        }
+                        if (me.gamestat.getItemValue("aliveGrenadesCount") > 0) {
+                            return false;
+                        }
+                        if (this.grenadeFireTimer < this.grenadeFireDuration) {
+                            return false;
+                        }
+                        if (me.game.HUD.getItemValue("grenades") == 0) {
+                            return false;
+                        }
+                        return true;
+                    },
+
+                });
 
         VitorcEntity.DUCK_OFFSET = 10;
 

@@ -3,8 +3,10 @@
     "",
     "\\maps",
     "\\src",
+    "\\src\\entities",
+    "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\src\\app.js",
+  "SelectedNode": "\\src\\resources\\images.js",
   "PreviewInSolutionExplorer": false
 }

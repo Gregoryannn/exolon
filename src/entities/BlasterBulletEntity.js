@@ -20,17 +20,18 @@ define(
                 this.direction = direction;
                 this.gravity = 0;
                 this.passedDistance = 0;
+
+                this.configureVelocity();
             },
 
             update: function () {
-                this.updateVelocity();
                 this.updateMovement();
                 this.updatePassedDistance();
                 this.handleCollisions();
                 return true;
             },
 
-            updateVelocity: function () {
+            configureVelocity: function () {
                 this.vel.x = this.direction == "right" ? BlasterBulletEntity.SPEED : -BlasterBulletEntity.SPEED;
             },
 
@@ -44,26 +45,26 @@ define(
             handleCollisions: function () {
                 var res = me.game.collide(this);
 
-                if (this.vel.x == 0 || res) {
-                    me.game.remove(this);
-                }
+                    if (this.vel.x == 0 || (res && res.obj.isSolid)) {
+                        me.game.remove(this);
+                    }
 
-                if (res) {
-                    this.createExplosion();
-                }
-            },
+                        if (res && res.obj.isSolid) {
+                            this.createExplosion();
+                        }
+                    },
 
-            createExplosion: function () {
-                var explosion = new BlasterExplosion(this.pos.x, this.pos.y + 8);
-                me.game.add(explosion, this.z);
-                me.game.sort();
-            },
+                    createExplosion: function () {
+                        var explosion = new BlasterExplosion(this.pos.x, this.pos.y + 8);
+                        me.game.add(explosion, this.z);
+                        me.game.sort();
+                    },
 
-            onDestroyEvent: function () {
-                me.gamestat.updateValue("aliveBlasterBulletCount", -1);
-            },
+                    onDestroyEvent: function () {
+                        me.gamestat.updateValue("aliveBlasterBulletCount", -1);
+                    },
 
-        });
+                });
 
         BlasterBulletEntity.SPEED = 6;
         BlasterBulletEntity.WIDTH = 16;
