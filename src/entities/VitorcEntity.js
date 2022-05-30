@@ -57,6 +57,7 @@ define(
                 var res = this.updateMovement();
                 this.handleCollisionsWithCollisionMap(res);
                 this.handleCollisionsWithEntities();
+                this.handleCollisionsWithEntities();
                 this.handleNextScreen();
                 this.parent();
                 return true;
@@ -95,25 +96,24 @@ define(
 
                 this.handleFireKey();
 
-                if (this.isCurrentAnimation("jump")) {
-                    return;
-                }
-                else {
-                    this.handleInputOnTheGround();
-                }
-            },
+                    if (this.isCurrentAnimation("jump") || this.falling) {
+                        return;
+                    }
+                    else {
+                        this.handleInputOnTheGround();
+                    }
+                },
 
-            handleCollisionsWithCollisionMap: function (res) {
-                if (!this.isCurrentAnimation("jump") && res.x) {
-                    this.setCurrentAnimation("stand");
-                }
-            },
+                handleCollisionsWithCollisionMap: function (res) {
+                    if (!this.isCurrentAnimation("jump") && res.x) {
+                        this.setCurrentAnimation("stand");
+                    }
+                },
 
-            handleCollisionsWithEntities: function () {
-                this.insideTeleport = false;
+                handleCollisionsWithEntities: function () {
+                    this.insideTeleport = false;
 
-                var res = me.game.collide(this);
-              
+                    var res = me.game.collide(this);
                     if (!res) {
                         return;
                     }
@@ -129,71 +129,77 @@ define(
 
                     this.pos.sub(res);
 
-                    if (this.isOnTheGround()) {
-                        this.setCurrentAnimation("stand");
-                    }
-                },
+                        if (res.y > 0) {
+                            this.vel.y = 0;
+                            this.falling = false;
+                        }
 
-                handleCollisionWithTeleport: function (res, obj) {
-                    if (obj.name == "teleport") {
-                        this.insideTeleport = true;
-                        this.thisTeleportGUID = obj.GUID;
-                    }
-                },
+                        if (res.x && this.isOnTheGround()) {
+                            this.vel.x = 0;
+                            this.setCurrentAnimation("stand");
+                        }
+                    },
 
-                onCollision: function (res, obj) {
-                    if (this.isCurrentAnimation("die")) {
-                        return;
-                    }
+                    handleCollisionWithTeleport: function (res, obj) {
+                        if (obj.name == "teleport") {
+                            this.insideTeleport = true;
+                            this.thisTeleportGUID = obj.GUID;
+                        }
+                    },
 
-                    if (obj.name == "turret_bullet") {
-                        this.die();
-                    }
-                },
+                    onCollision: function (res, obj) {
+                        if (this.isCurrentAnimation("die")) {
+                            return;
+                        }
 
-                handleNextScreen: function () {
-                    if (this.pos.x > 510) {
-                        me.state.current().nextLevel();
-                    }
-                },
+                        if (obj.name == "turret_bullet") {
+                            this.die();
+                        }
+                    },
 
-                handleFireKey: function () {
-                    if (me.input.isKeyPressed("fire")) {
-                        this.fireBlaster();
-                        this.fireGrenade();
-                        this.firePressed = true;
-                        this.grenadeFireTimer++;
-                    }
-                    else {
-                        this.firePressed = false;
-                        this.grenadeFireTimer = 0;
-                    }
-                },
+                    handleNextScreen: function () {
+                        if (this.pos.x > 510) {
+                            me.state.current().nextLevel();
+                        }
+                    },
 
-                handleInputOnTheGround: function () {
-                    if (me.input.isKeyPressed("duck")) {
-                        this.duck();
-                        return;
-                    }
+                    handleFireKey: function () {
+                        if (me.input.isKeyPressed("fire")) {
+                            this.fireBlaster();
+                            this.fireGrenade();
+                            this.firePressed = true;
+                            this.grenadeFireTimer++;
+                        }
+                        else {
+                            this.firePressed = false;
+                            this.grenadeFireTimer = 0;
+                        }
+                    },
 
-                    this.stand();
+                    handleInputOnTheGround: function () {
+                        if (me.input.isKeyPressed("duck")) {
+                            this.duck();
+                            return;
+                        }
 
-                    if (me.input.isKeyPressed("right")) {
-                        this.direction = "right";
-                        this.setCurrentAnimation("move");
-                        this.doWalk(false);
-                    }
-                    else if (me.input.isKeyPressed("left")) {
-                        this.direction = "left";
-                        this.setCurrentAnimation("move");
-                        this.doWalk(true);
-                    }
+                        this.stand();
 
-                    if (me.input.isKeyPressed("jump")) {
+                        if (me.input.isKeyPressed("right")) {
+                            this.direction = "right";
+                            this.setCurrentAnimation("move");
+                            this.doWalk(false);
+                        }
+                        else if (me.input.isKeyPressed("left")) {
+                            this.direction = "left";
+                            this.setCurrentAnimation("move");
+                            this.doWalk(true);
+                        }
+
                         this.handleJumpKey();
                     },
 
                     handleJumpKey: function () {
+                        if (!me.input.isKeyPressed("jump")) {
                             this.jumpPressed = false;
                             return;
                         }
