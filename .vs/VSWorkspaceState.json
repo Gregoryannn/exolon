@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\maps",
+    "\\src",
+    "\\src\\screens"
   ],
-  "SelectedNode": "\\C:\\Users\\asus\\Source\\Repos\\exolon8",
+  "SelectedNode": "\\src\\app.js",
   "PreviewInSolutionExplorer": false
 }

@@ -1,65 +1,32 @@
 define(
     [
         "src/me",
-        "src/config",
-        "src/resources/resources",
-
-        "src/screens/PlayScreen",
-
-        "src/entities/VitorcEntity",
-        "src/entities/TurretEntity",
-        "src/entities/ObstacleEntity",
-        "src/entities/RadarEntity",
-        "src/entities/ShipFireEntity",
-        "src/entities/LightEntity",
+        "src/explosion",
     ],
     function (
         me,
-        config,
-        resources,
-
-        PlayScreen,
-
-        VitorcEntity,
-        TurretEntity,
-        ObstacleEntity,
-        RadarEntity,
-        ShipFireEntity,
-        LightEntity
+        explosion
     ) {
 
-        var app = {
+            var CocoonEntity = me.ObjectEntity.extend({
 
-            onload: function () {
-                me.debug.renderHitBox = config.renderHitBox;
-                me.debug.renderCollisionMap = config.renderCollisionMap;
+                init: function (x, y, settings) {
+                    settings.image = "cocoon";
+                    this.parent(x, y, settings);
 
-                me.video.init("app", 512, 384);
-                me.loader.onload = this.loaded.bind(this);
-                me.loader.preload(resources);
+                    this.collidable = true;
+                },
 
-                me.state.change(me.state.LOADING);
-            },
+                onCollision: function (res, obj) {
+                    if (obj.name == "grenade") {
+                        explosion.create(this.pos.x + this.width / 2, this.pos.y + this.height / 2, this.z);
+                        me.game.remove(this);
+                        me.game.HUD.updateItemValue("points", 150);
+                    }
+                },
 
-            loaded: function () {
-                me.state.set(me.state.PLAY, new PlayScreen());
+            });
 
-                me.entityPool.add("vitorc", VitorcEntity);
-                me.entityPool.add("turret", TurretEntity);
-                me.entityPool.add("obstacle", ObstacleEntity);
-                me.entityPool.add("radar", RadarEntity);
-                me.entityPool.add("ship_fire", ShipFireEntity);
-                me.entityPool.add("light", LightEntity);
+            return CocoonEntity;
 
-                me.input.bindKey(me.input.KEY.LEFT, "left");
-                me.input.bindKey(me.input.KEY.RIGHT, "right");
-                me.input.bindKey(me.input.KEY.UP, "jump");
-                me.input.bindKey(me.input.KEY.DOWN, "duck");
-                me.input.bindKey(me.input.KEY.SPACE, "fire");
-
-                me.state.change(me.state.PLAY);
-            },
-
-        };
-        return app;
-    });
+        });
