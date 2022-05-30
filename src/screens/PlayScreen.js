@@ -26,6 +26,7 @@ define(
 
             onResetEvent: function () {
                 this.loadLevel(config.initialScreen);
+
                 me.game.addHUD(0, 352, 512, 32);
                 me.game.HUD.addItem("ammo", new AmmoHUD(0, 0, config.initialAmmo));
                 me.game.HUD.addItem("grenades", new GrenadesHUD(80, 0, config.initialGrenades));
@@ -43,7 +44,7 @@ define(
             },
 
             nextLevel: function () {
-                this.loadLevel("L01S02");
+                this.loadLevel(me.game.currentLevel.nextLevel);
                 me.game.HUD.updateItemValue("zones", 1);
             },
 
@@ -70,6 +71,5 @@ define(
         });
 
         PlayScreen.STARS_COUNT = 50;
-
         return PlayScreen;
     });
