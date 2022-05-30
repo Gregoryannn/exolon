@@ -17,6 +17,7 @@ define(
 
                 this.gravity = 0;
                 this.vel.x = -5;
+                this.isLethal = true;
             },
 
             update: function () {
@@ -28,12 +29,12 @@ define(
             handleCollisions: function () {
                 var res = me.game.collide(this);
 
-                    if (this.vel.x == 0 || (res && res.obj.isSolid)) {
-                        me.game.remove(this);
-                    }
-                },
+                if (this.vel.x == 0 || (res && res.obj.isSolid)) {
+                    me.game.remove(this);
+                }
+            },
 
-            });
+        });
 
         TurretBullet.WIDTH = 4;
 
