@@ -163,12 +163,20 @@ define(function () {
             src: "images/harbringer.gif",
         },
         {
-            name: "harbringer_explosion",
+            name: "circular_explosion",
             type: "image",
-            src: "images/harbringer_explosion.gif",
+            src: "images/circular_explosion.gif",
+        },
+        {
+            name: "bubble",
+            type: "image",
+            src: "images/bubble.gif",
         },
     ];
 
     return images;
+
+});
+
 
 });
