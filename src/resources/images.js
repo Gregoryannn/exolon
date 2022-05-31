@@ -88,6 +88,11 @@ define(function () {
             src: "images/grenade_pack.gif",
         },
         {
+            name: "ammo_pack",
+            type: "image",
+            src: "images/ammo_pack.gif",
+        },
+        {
             name: "turret",
             type: "image",
             src: "images/turret.gif",
@@ -151,6 +156,16 @@ define(function () {
             name: "piston",
             type: "image",
             src: "images/piston.gif",
+        },
+        {
+            name: "harbringer",
+            type: "image",
+            src: "images/harbringer.gif",
+        },
+        {
+            name: "harbringer_explosion",
+            type: "image",
+            src: "images/harbringer_explosion.gif",
         },
     ];
 
