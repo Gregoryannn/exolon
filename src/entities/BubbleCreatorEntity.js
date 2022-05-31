@@ -1,27 +1,22 @@
 define(
     [
-        "src/me",
-        "src/entities/KamikazeCreator",
+        "src/entities/KamikazeCreatorEntity",
         "src/entities/BubbleEntity",
     ],
     function (
-        me,
-        KamikazeCreator,
+        KamikazeCreatorEntity,
         BubbleEntity
     ) {
 
-            var BubbleCreatorEntity = KamikazeCreator.extend({
+            var BubbleCreatorEntity = KamikazeCreatorEntity.extend({
 
-              
                 delay: 3000,
-                    createKamikaze: function () {
-                        var vitorc = me.game.getEntityByName("vitorc")[0];
-                        var bubble = new BubbleEntity(512, vitorc.pos.y);
-                        me.game.add(bubble, vitorc.z);
-                        me.game.sort();
+                    createSpecificKamikaze: function (x, y) {
+                        return new BubbleEntity(x, y);
                     },
 
                 });
 
-         
+            return BubbleCreatorEntity;
+
         });

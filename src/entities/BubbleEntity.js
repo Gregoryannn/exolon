@@ -1,34 +1,34 @@
 define(
     [
-        "src/me",
-        "src/entities/CircularExplosionEntity",
         "src/entities/KamikazeEntity",
     ],
     function (
-         KamikazeEntity
+        KamikazeEntity
     ) {
 
-         var BubbleEntity = KamikazeEntity.extend({
+        var BubbleEntity = KamikazeEntity.extend({
 
-                init: function (x, y) {
-                    var settings = {};
-                    settings.image = "bubble";
-                    settings.spritewidth = BubbleEntity.WIDTH;
-                    settings.spriteheight = BubbleEntity.HEIGHT;
-                    this.parent(x, y + BubbleEntity.HEIGHT, settings);
+            init: function (x, y) {
+                var settings = {};
+                settings.image = "bubble";
+                settings.spritewidth = BubbleEntity.WIDTH;
+                settings.spriteheight = BubbleEntity.HEIGHT;
+                this.parent(x, y + BubbleEntity.HEIGHT, settings);
+                this.animationspeed = 1;
+                this.gravity = 0;
+            },
 
-                    this.animationspeed = 1;
-                    this.gravity = 0;
-                    this.vel.x = -BubbleEntity.SPEED;
-                  
-                },
-
-            });
-
-            BubbleEntity.WIDTH = 32;
-            BubbleEntity.HEIGHT = 32;
-            BubbleEntity.SPEED = 3;
-
-            return BubbleEntity;
+            updateMovement: function () {
+                this.pos.x -= BubbleEntity.SPEED;
+                this.pos.y += 3 * Math.sin(this.pos.x / 20);
+            },
 
         });
+
+        BubbleEntity.WIDTH = 32;
+        BubbleEntity.HEIGHT = 32;
+        BubbleEntity.SPEED = 2;
+
+        return BubbleEntity;
+
+    });
