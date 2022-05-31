@@ -1,4 +1,4 @@
-efine(function () {
+define(function () {
 
     var maps = [
         {
@@ -15,6 +15,11 @@ efine(function () {
             name: "L01S03",
             type: "tmx",
             src: "maps/L01S03.tmx",
+        },
+        {
+            name: "L01S04",
+            type: "tmx",
+            src: "maps/L01S04.tmx",
         },
     ];
 

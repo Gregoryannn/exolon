@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\images",
     "\\maps",
     "\\src",
     "\\src\\entities",
     "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\src\\resources\\images.js",
+  "SelectedNode": "\\images",
   "PreviewInSolutionExplorer": false
 }
