@@ -2,58 +2,33 @@ define(
     [
         "src/me",
         "src/entities/CircularExplosionEntity",
+        "src/entities/KamikazeEntity",
     ],
     function (
-        me,
-        CircularExplosionEntity
+         KamikazeEntity
     ) {
 
-        var BubbleEntity = me.ObjectEntity.extend({
+         var BubbleEntity = KamikazeEntity.extend({
 
-            init: function (x, y) {
-                var settings = {};
-                settings.image = "bubble";
-                settings.spritewidth = BubbleEntity.WIDTH;
-                settings.spriteheight = BubbleEntity.HEIGHT;
-                this.parent(x, y + BubbleEntity.HEIGHT, settings);
+                init: function (x, y) {
+                    var settings = {};
+                    settings.image = "bubble";
+                    settings.spritewidth = BubbleEntity.WIDTH;
+                    settings.spriteheight = BubbleEntity.HEIGHT;
+                    this.parent(x, y + BubbleEntity.HEIGHT, settings);
 
-                this.animationspeed = 1;
-                this.gravity = 0;
-                this.vel.x = -BubbleEntity.SPEED;
-                this.isLethal = true;
-            },
+                    this.animationspeed = 1;
+                    this.gravity = 0;
+                    this.vel.x = -BubbleEntity.SPEED;
+                  
+                },
 
-            update: function () {
-                this.updateMovement();
-                this.handleCollisions();
-                this.parent();
-                return true;
-            },
+            });
 
-            handleCollisions: function () {
-                var res = me.game.collide(this);
+            BubbleEntity.WIDTH = 32;
+            BubbleEntity.HEIGHT = 32;
+            BubbleEntity.SPEED = 3;
 
-                if (this.vel.x == 0 || (res && res.obj.name == "vitorc")) {
-                    me.game.remove(this);
-                }
-            },
-
-            onDestroyEvent: function () {
-                this.createExplosion();
-            },
-
-            createExplosion: function () {
-                var explosion = new CircularExplosionEntity(this.pos.x, this.pos.y);
-                me.game.add(explosion, this.z + 1);
-                me.game.sort();
-            },
+            return BubbleEntity;
 
         });
-
-        BubbleEntity.WIDTH = 32;
-        BubbleEntity.HEIGHT = 32;
-        BubbleEntity.SPEED = 3;
-
-        return BubbleEntity;
-
-    });
