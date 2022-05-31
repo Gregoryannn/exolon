@@ -9,6 +9,8 @@ define(
         "src/hud/PointsHUD",
         "src/hud/LivesHUD",
         "src/hud/ZonesHUD",
+
+        "src/entities/HarbringerCreatorEntity",
     ],
     function (
         me,
@@ -19,7 +21,9 @@ define(
         GrenadesHUD,
         PointsHUD,
         LivesHUD,
-        ZonesHUD
+        ZonesHUD,
+
+        HarbringerCreatorEntity
     ) {
 
         var PlayScreen = me.ScreenObject.extend({
@@ -41,11 +45,24 @@ define(
             loadLevel: function (level) {
                 me.levelDirector.loadLevel(level);
                 this.addStars();
+                this.addHarbringerCreator();
             },
 
             nextLevel: function () {
+                var prevLevelVitorc = me.game.getEntityByName("vitorc")[0];
                 this.loadLevel(me.game.currentLevel.nextLevel);
+                this.restoreVitorcProperties(prevLevelVitorc);
                 me.game.HUD.updateItemValue("zones", 1);
+            },
+
+            restoreVitorcProperties: function (prevLevelVitorc) {
+                var vitorc = me.game.getEntityByName("vitorc")[0];
+                vitorc.pos.y = prevLevelVitorc.pos.y;
+                vitorc.vel.x = prevLevelVitorc.vel.x;
+                vitorc.vel.y = prevLevelVitorc.vel.y;
+                vitorc.setCurrentAnimation(prevLevelVitorc.current.name);
+                vitorc.falling = prevLevelVitorc.falling;
+                vitorc.jumping = prevLevelVitorc.jumping;
             },
 
             addStars: function () {
@@ -62,6 +79,12 @@ define(
                     layer.setTile(x, y, util.arrayRandomElement(colors));
                     i++;
                 }
+            },
+
+            addHarbringerCreator: function () {
+                var creator = new HarbringerCreatorEntity();
+                me.game.add(creator, 999);
+                me.game.sort();
             },
 
             onDestroyEvent: function () {
