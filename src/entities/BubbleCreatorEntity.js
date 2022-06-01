@@ -8,15 +8,16 @@ define(
         BubbleEntity
     ) {
 
-            var BubbleCreatorEntity = KamikazeCreatorEntity.extend({
+        var BubbleCreatorEntity = KamikazeCreatorEntity.extend({
 
-                delay: 3000,
-                    createSpecificKamikaze: function (x, y) {
-                        return new BubbleEntity(x, y);
-                    },
+                delay: 1000,
 
-                });
-
-            return BubbleCreatorEntity;
+            createSpecificKamikaze: function (x, y) {
+                return new BubbleEntity(x, y);
+            },
 
         });
+
+        return BubbleCreatorEntity;
+
+    });

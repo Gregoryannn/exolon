@@ -1,4 +1,4 @@
-define(function () {
+define(["src/me"], function (me) {
 
     var util = {};
 
@@ -17,12 +17,21 @@ define(function () {
         return util.arrayRandomElement([-1, 1]);
     };
 
+    // Returns a random number between min and max  
+    util.getRandomArbitrary = function (min, max) {
+        return Math.random() * (max - min) + min;
+    };
+
     util.strlpad = function (s, padString, length) {
         var str = "" + s;
         while (str.length < length) {
             str = padString + str;
         }
         return str;
+    };
+
+    util.executeWithDelay = function (callback, delay) {
+        new me.Tween({ t: 0 }).to({ t: 100 }, delay).onComplete(callback).start();
     };
 
     return util;
