@@ -18,16 +18,12 @@ define(
                 settings.spritewidth = TurretTubeEntity.WIDTH;
 
                 this.parent(x, y, settings);
-
                 this.turret = turret;
                 this.collidable = true;
-
                 this.addAnimation("default", [0]);
                 this.addAnimation("fire", [7, 6, 5, 4, 3, 2, 1, 0]);
                 this.setCurrentAnimation("default");
-
                 this.animationspeed = 1;
-
                 this.resetFireDurationAndTimer();
             },
 
@@ -61,7 +57,7 @@ define(
             createBullet: function () {
                 var bullet = new TurretBullet(this.pos.x - TurretBullet.WIDTH, this.pos.y + 10);
                 me.game.add(bullet, this.z);
-                me.game.sort();
+                me.game.sort.defer();
             },
 
         });

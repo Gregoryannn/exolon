@@ -4,10 +4,8 @@
     "\\images",
     "\\maps",
     "\\src",
-    "\\src\\entities",
-    "\\src\\resources",
-    "\\src\\screens"
+    "\\src\\entities"
   ],
-  "SelectedNode": "\\src\\entities\\KamikazeCreatorEntity.js",
+  "SelectedNode": "\\src\\entities\\BubbleEntity.js",
   "PreviewInSolutionExplorer": false
 }

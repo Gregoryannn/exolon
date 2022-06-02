@@ -84,7 +84,7 @@ define(
             addHarbringerCreator: function () {
                 var creator = new HarbringerCreatorEntity();
                 me.game.add(creator, 999);
-                me.game.sort();
+                me.game.sort.defer();
             },
 
             onDestroyEvent: function () {
