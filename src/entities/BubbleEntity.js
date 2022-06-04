@@ -1,16 +1,16 @@
 define(
     [
-        "src/me",
         "src/util",
         "src/entities/KamikazeEntity",
     ],
     function (
-        me,
         util,
         KamikazeEntity
     ) {
 
         var BubbleEntity = KamikazeEntity.extend({
+
+            points: 150,
 
             init: function (x, y) {
                 var settings = {};
