@@ -33,41 +33,51 @@ define(
             },
 
             resetFireDurationAndTimer: function () {
-                this.fireDuration = util.getRandomInt(20, 200);
+                this.fireDuration = util.getRandomInt(20, 160);
                 this.fireTimer = 0;
             },
 
             fire: function () {
-                if (this.vitorc.pos.x > this.pos.x - DoubleLauncherEntity.STOP_FIRE_DISTANCE) {
-                    return;
-                }
-                var x = this.pos.x - DoubleLauncherBulletEntity.WIDTH;
-                var y = util.arrayRandomElement([this.pos.y, this.pos.y + 16]);
-                var bullet = new DoubleLauncherBulletEntity(x, y);
-                me.game.add(bullet, this.z);
-                me.game.sort.defer();
-            },
+                    if (!this.shouldFire()) {
+                        return;
+                    }
+                    var x = this.pos.x - DoubleLauncherBulletEntity.WIDTH;
+                    var y = util.arrayRandomElement([this.pos.y, this.pos.y + 16]);
+                    var bullet = new DoubleLauncherBulletEntity(x, y);
+                    me.game.add(bullet, this.z);
+                    me.game.sort.defer();
+                },
 
-            onCollision: function (res, obj) {
-                if (obj.name == "vitorc") {
-                    this.capture();
-                }
-            },
+                shouldFire: function () {
+                    if (this.vitorc.pos.x > this.pos.x - DoubleLauncherEntity.STOP_FIRE_DISTANCE) {
+                        return false;
+                    }
+                    if (this.vitorc.pos.y + this.vitorc.height < this.pos.y) {
+                        return false;
+                    }
+                    return true;
+                },
 
-            capture: function () {
-                if (this.captured) {
-                    return;
-                }
-                this.captured = true;
+                onCollision: function (res, obj) {
+                    if (obj.name == "vitorc") {
+                        this.capture();
+                    }
+                },
 
-                var award = new AwardPointsEntity(DoubleLauncherEntity.POINTS);
-                me.game.add(award, 999);
-                me.game.sort.defer();
-            },
+                capture: function () {
+                    if (this.captured) {
+                        return;
+                    }
+                    this.captured = true;
 
-        });
+                    var award = new AwardPointsEntity(DoubleLauncherEntity.POINTS);
+                    me.game.add(award, 999);
+                    me.game.sort.defer();
+                },
 
-        DoubleLauncherEntity.STOP_FIRE_DISTANCE = 64;
+            });
+
+        DoubleLauncherEntity.STOP_FIRE_DISTANCE = 80;
         DoubleLauncherEntity.POINTS = 2000;
 
         return DoubleLauncherEntity;
