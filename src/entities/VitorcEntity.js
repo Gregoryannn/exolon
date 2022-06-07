@@ -2,6 +2,7 @@ define(
     [
         "src/me",
         "src/util",
+        "src/config",
         "src/entities/BlasterBulletEntity",
         "src/entities/GrenadeEntity",
         "src/entities/GrenadeTraceEntity",
@@ -10,6 +11,7 @@ define(
     function (
         me,
         util,
+        config,
         BlasterBulletEntity,
         GrenadeEntity,
         GrenadeTraceEntity,
@@ -95,6 +97,10 @@ define(
                         this.setCurrentAnimation("stand");
                         this.respawn();
                         this.makeTemporarilyInvincible();
+
+                        me.game.HUD.updateItemValue("lives", -1);
+                        me.game.HUD.setItemValue("ammo", config.initialAmmo);
+                        me.game.HUD.setItemValue("grenades", config.initialGrenades);
                     }
                 }
             },
@@ -300,6 +306,7 @@ define(
                     return;
                 }
                 me.game.HUD.updateItemValue("lives", -1);
+
                 this.setCurrentAnimation("die");
                 this.vel.x = 0;
                 this.forceJump();
@@ -333,7 +340,6 @@ define(
                     var flash = new TeleportFlashEntity(x, y);
                     me.game.add(flash, this.z + 1);
                 }
-
                 me.game.sort.defer();
             },
 
