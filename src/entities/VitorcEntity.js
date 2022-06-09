@@ -139,6 +139,7 @@ define(
 
                 this.handleCollisionWithSolidObject(res, res.obj);
                 this.handleCollisionWithTeleport(res, res.obj);
+                this.handleCollisionWithMine(res, res.obj);
             },
 
             handleCollisionWithSolidObject: function (res, obj) {
@@ -163,6 +164,12 @@ define(
                 if (obj.name == "teleport") {
                     this.insideTeleport = true;
                     this.thisTeleportGUID = obj.GUID;
+                }
+            },
+
+            handleCollisionWithMine: function (res, obj) {
+                if (obj.name == "mine") {
+                    this.die();
                 }
             },
 
@@ -305,7 +312,6 @@ define(
                 if (this.invincible) {
                     return;
                 }
-                me.game.HUD.updateItemValue("lives", -1);
 
                 this.setCurrentAnimation("die");
                 this.vel.x = 0;
