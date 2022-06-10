@@ -4,7 +4,6 @@ define(
         "src/entities/ObstacleEntity",
         "src/entities/MissileEntity",
         "src/entities/AwardPointsEntity",
-
     ],
     function (
         me,
@@ -17,7 +16,6 @@ define(
 
             points: 0,
 
-
             init: function (x, y, settings) {
                 this.vitorc = me.game.getEntityByName("vitorc")[0];
                 settings.image = "missile_guidance";
@@ -25,7 +23,10 @@ define(
             },
 
             update: function () {
-                    if (me.gamestat.getItemValue("aliveMissilesCount") > 0 || !this.alive) {
+                    if (me.gamestat.getItemValue("aliveMissilesCount") > 0 ||
+                        !this.alive ||
+                        this.vitorc.isCurrentAnimation("die")
+                    ) {
                         return false;
                     }
 
@@ -46,6 +47,11 @@ define(
 
             });
 
+        MissileGuidanceEntity.POINTS = 1000;
+
+        return MissileGuidanceEntity;
+
+    });
         MissileGuidanceEntity.POINTS = 1000;
 
 
