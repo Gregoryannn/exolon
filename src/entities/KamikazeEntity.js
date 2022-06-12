@@ -30,35 +30,36 @@ define(
 
             handleCollisions: function () {
                 var res = me.game.collide(this);
+                var hitVitorc = res && res.obj.name == "vitorc";
 
-                if (this.pos.x < 0 || (res && res.obj.name == "vitorc")) {
-                    me.game.remove(this);
-                }
+                    if (this.pos.x < 0 || hitVitorc) {
+                        me.game.remove(this);
+                    }
 
-                if (res && res.obj.name == "vitorc") {
-                    this.createExplosion();
-                }
-            },
+                        if (hitVitorc) {
+                            this.createExplosion();
+                        }
+                    },
 
-            onCollision: function (res, obj) {
-                if (obj.name == "blaster_bullet") {
-                    me.game.remove(this);
-                    this.createExplosion();
-                    me.game.HUD.updateItemValue("points", this.points);
-                }
-            },
+                    onCollision: function (res, obj) {
+                        if (obj.name == "blaster_bullet") {
+                            me.game.remove(this);
+                            this.createExplosion();
+                            me.game.HUD.updateItemValue("points", this.points);
+                        }
+                    },
 
-            createExplosion: function () {
-                var explosion = this.createSpecificExplosion(this.pos.x, this.pos.y);
-                me.game.add(explosion, this.z + 1);
-                me.game.sort.defer();
-            },
+                    createExplosion: function () {
+                        var explosion = this.createSpecificExplosion(this.pos.x, this.pos.y);
+                        me.game.add(explosion, this.z + 1);
+                        me.game.sort.defer();
+                    },
 
-            createSpecificExplosion: function (x, y) {
-                return new CircularExplosionEntity(x, y);
-            },
+                    createSpecificExplosion: function (x, y) {
+                        return new CircularExplosionEntity(x, y);
+                    },
 
-        });
+                });
 
         return KamikazeEntity;
 
