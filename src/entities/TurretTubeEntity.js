@@ -18,12 +18,17 @@ define(
                 settings.spritewidth = TurretTubeEntity.WIDTH;
 
                 this.parent(x, y, settings);
+
                 this.turret = turret;
                 this.collidable = true;
+                this.isSolid = true;
+
                 this.addAnimation("default", [0]);
                 this.addAnimation("fire", [7, 6, 5, 4, 3, 2, 1, 0]);
                 this.setCurrentAnimation("default");
+
                 this.animationspeed = 1;
+
                 this.resetFireDurationAndTimer();
             },
 
@@ -50,7 +55,7 @@ define(
             },
 
             resetFireDurationAndTimer: function () {
-                this.fireDuration = util.getRandomInt(20, 200);
+                this.fireDuration = util.getRandomInt(50, 300);
                 this.fireTimer = 0;
             },
 
