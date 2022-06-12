@@ -46,12 +46,12 @@ define(
             },
 
             updateMovement: function () {
-               if (this.pos.x < 336) {
+                if (this.pos.x < 336) {
                     this.swing = false;
                 }
 
                 if (this.swing) {
-                    this.pos.y += util.getRandomArbitrary(1, 3) * Math.sin(this.pos.x / 14);
+                    this.pos.y += util.getRandomArbitrary(1, 3) * Math.sin(this.pos.x / 20);
                 }
                 else {
                     this.straightFlyTimer++;
