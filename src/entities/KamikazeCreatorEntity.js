@@ -42,8 +42,9 @@ define(
             },
 
             shouldCreate: function () {
-                // should be overriden by subclasses
-                return true;
+                if (this.vitorc.pos.x > 350) {
+                    return false;
+                }                return true;
             },
 
         });
