@@ -22,13 +22,16 @@ define(
         "src/entities/DoubleLauncherEntity",
         "src/entities/MineEntity",
         "src/entities/MissileGuidanceEntity",
-
+        "src/entities/InterceptorCreatorEntity",
+        "src/entities/JellyfishCreatorEntity",
     ],
     function (
         me,
         config,
         resources,
+
         PlayScreen,
+
         VitorcEntity,
         TurretEntity,
         CocoonEntity,
@@ -44,7 +47,9 @@ define(
         IncubatorEntity,
         DoubleLauncherEntity,
         MineEntity,
-        MissileGuidanceEntity
+        MissileGuidanceEntity,
+        InterceptorCreatorEntity,
+        JellyfishCreatorEntity
     ) {
 
         var app = {
@@ -52,9 +57,11 @@ define(
             onload: function () {
                 me.debug.renderHitBox = config.renderHitBox;
                 me.debug.renderCollisionMap = config.renderCollisionMap;
+
                 me.video.init("app", 512, 384);
                 me.loader.onload = this.loaded.bind(this);
                 me.loader.preload(resources);
+
                 me.state.change(me.state.LOADING);
             },
 
@@ -77,6 +84,8 @@ define(
                 me.entityPool.add("double_launcher", DoubleLauncherEntity);
                 me.entityPool.add("mine", MineEntity);
                 me.entityPool.add("missile_guidance", MissileGuidanceEntity);
+                me.entityPool.add("interceptor_creator", InterceptorCreatorEntity);
+                me.entityPool.add("jellyfish_creator", JellyfishCreatorEntity);
 
                 me.input.bindKey(me.input.KEY.LEFT, "left");
                 me.input.bindKey(me.input.KEY.RIGHT, "right");
