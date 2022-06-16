@@ -25,30 +25,23 @@ define(
                 this.fontCyan.set("left");
             },
 
-            onResetEvent: function () {
-                me.input.bindKey(me.input.KEY.ENTER, "enter", true);
-            },
-
             update: function () {
-                if (me.input.isKeyPressed('enter')) {
-                    me.state.change(screens.PLAY);
-                }
-                return true;
-            },
+                    if (me.input.isKeyPressed('fire')) {
+                        me.state.change(screens.PLAY);
+                    }
+                    return true;
+                },
 
-            draw: function (context) {
-                me.video.clearSurface(context, "black");
-                context.drawImage(this.titleImg, 128, 0);
-                this.fontGreen.draw(context, "BY  RAFFAELE CECCO", 112, 112);
-                this.fontCyan.draw(context, "PRESS ENTER TO  PLAY", 112 - 16, 112 + 16 * 3);
-                this.fontRed.draw(context, "EXOLON COPYRIGHT 1987 HEWSON", 32, 368);
-            },
+                draw: function (context) {
+                    me.video.clearSurface(context, "black");
+                    context.drawImage(this.titleImg, 128, 0);
+                    this.fontGreen.draw(context, "BY  RAFFAELE CECCO", 112, 112);
+                    this.fontCyan.draw(context, "PRESS FIRE TO PLAY", 112, 112 + 16 * 3);
+                    this.fontRed.draw(context, "EXOLON COPYRIGHT 1987 HEWSON", 32, 368);
+                },
 
-            onDestroyEvent: function () {
-                me.input.unbindKey(me.input.KEY.ENTER);
-            },
-
-        });
+          
+            });
 
         return TitleScreen;
     });

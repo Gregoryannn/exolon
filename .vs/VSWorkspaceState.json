@@ -5,9 +5,10 @@
     "\\maps",
     "\\src",
     "\\src\\entities",
+    "\\src\\hud",
     "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\src\\entities\\TitleScreen.js",
+  "SelectedNode": "\\src\\screens\\TitleScreen.js",
   "PreviewInSolutionExplorer": false
 }
