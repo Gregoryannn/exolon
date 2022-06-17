@@ -2,66 +2,110 @@ define(
     [
         "src/me",
         "src/util",
-        "src/entities/BlasterExplosion",
+        "src/entities/DoubleLauncherBulletEntity",
+        "src/entities/AwardPointsEntity",
     ],
     function (
         me,
         util,
-        BlasterExplosion
+        DoubleLauncherBulletEntity,
+        AwardPointsEntity
     ) {
 
-        var DoubleLauncherBulletEntity = me.ObjectEntity.extend({
+        var DoubleLauncherEntity = me.ObjectEntity.extend({
 
-            init: function (x, y) {
-                var settings = {};
-                settings.image = "double_launcher_bullet";
-                this.parent(x, y + DoubleLauncherBulletEntity.HEIGHT, settings);
+            points: 2000,
 
-                this.gravity = 0;
-                this.vel.x = -3;
-                this.isLethal = true;
-                this.isDestroyable = true;
+            init: function (x, y, settings) {
+                settings.image = this.getSpriteImage();
+                this.parent(x, y, settings);
+
                 this.collidable = true;
+                this.captured = false;
+                this.vitorc = null;
+                this.resetFireDurationAndTimer();
+            },
+
+            getSpriteImage: function () {
+                return "double_launcher";
             },
 
             update: function () {
-                this.updateMovement();
-                this.handleCollisions();
-                return true;
-            },
-
-            handleCollisions: function () {
-                var res = me.game.collide(this);
-                var hitVitorc = res && (res.obj.isSolid || res.obj.name == "vitorc");
-
-                if (this.vel.x == 0 || hitVitorc) {
-                    me.game.remove(this);
+                if (this.vitorc == null) {
+                    this.vitorc = me.game.getEntityByName("vitorc")[0];
                 }
-
-                if (hitVitorc) {
-                    this.createExplosion();
+                this.fireTimer++;
+                if (this.fireTimer > this.fireDuration) {
+                    this.resetFireDurationAndTimer();
+                    this.fire();
                 }
             },
 
-            onCollision: function (res, obj) {
-                if (obj.name == "blaster_bullet") {
-                    me.game.remove(this);
-                    this.createExplosion();
-                    util.updatePoints(50);
-                }
+            resetFireDurationAndTimer: function () {
+                this.fireDuration = util.getRandomInt(20, 160);
+                this.fireTimer = 0;
             },
 
-            createExplosion: function () {
-                var explosion = new BlasterExplosion(this.pos.x, this.pos.y);
-                me.game.add(explosion, this.z);
+            fire: function () {
+                if (!this.shouldFire()) {
+                    return;
+                }
+                var pos = this.getBulletPosition();
+                var bullet = new DoubleLauncherBulletEntity(pos.x, pos.y);
+                me.game.add(bullet, this.z);
                 me.game.sort.defer();
             },
 
-        });
+            getBulletPosition: function () {
+                var pos = {};
+                pos.x = this.pos.x - DoubleLauncherBulletEntity.WIDTH;
+                pos.y = util.arrayRandomElement([this.pos.y, this.pos.y + 16]);
+                return pos;
+            },
 
-        DoubleLauncherBulletEntity.WIDTH = 16;
-        DoubleLauncherBulletEntity.HEIGHT = 16;
+            shouldFire: function () {
+                    if (this.vitorcTooClose()) {
+                        return false;
+                    }
+                    if (!this.vitorcIsInSight()) {
+                        return false;
+                    }
+                    return true;
+                },
 
-        return DoubleLauncherBulletEntity;
+                onCollision: function (res, obj) {
+                    if (obj.name == "vitorc") {
+                        this.capture();
+                    }
+                },
+
+                capture: function () {
+                    if (this.captured) {
+                        return;
+                    }
+                    this.captured = true;
+
+                    var award = new AwardPointsEntity(this.points);
+                    me.game.add(award, 999);
+                    me.game.sort.defer();
+                },
+
+                vitorcTooClose: function () {
+                    return this.vitorc.pos.x > this.pos.x - DoubleLauncherEntity.STOP_FIRE_DISTANCE
+                },
+
+                vitorcIsInSight: function () {
+                    if (this.vitorc.pos.y + this.vitorc.height < this.pos.y ||
+                        this.vitorc.pos.y > this.pos.y + this.height) {
+                        return false;
+                    }
+                    return true;
+                },
+
+            });
+
+        DoubleLauncherEntity.STOP_FIRE_DISTANCE = 110;
+
+        return DoubleLauncherEntity;
 
     });
