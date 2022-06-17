@@ -2,6 +2,7 @@ define(
     [
         "src/me",
         "src/config",
+        "src/global",
         "src/util",
 
         "src/hud/AmmoHUD",
@@ -15,6 +16,7 @@ define(
     function (
         me,
         config,
+        global,
         util,
 
         AmmoHUD,
@@ -31,15 +33,15 @@ define(
             onResetEvent: function () {
                 this.loadLevel(config.initialScreen);
 
-                me.game.addHUD(0, 352, 512, 32);
-                me.game.HUD.addItem("ammo", new AmmoHUD(0, 0, config.initialAmmo));
-                me.game.HUD.addItem("grenades", new GrenadesHUD(80, 0, config.initialGrenades));
-                me.game.HUD.addItem("points", new PointsHUD(224, 0, config.initialPoints));
-                me.game.HUD.addItem("lives", new LivesHUD(336, 0, config.initialLives));
-                me.game.HUD.addItem("zones", new ZonesHUD(432, 0, config.initialZones));
+                var vitorc = me.game.getEntityByName("vitorc")[0];
+                this.setVitorcRespawnPosition(vitorc);
 
-                me.gamestat.add("aliveBlasterBulletCount", 0);
-                me.gamestat.add("aliveGrenadesCount", 0);
+                me.game.addHUD(0, 352, 512, 32);
+                me.game.HUD.addItem("ammo", new AmmoHUD(0, 0, global.ammo));
+                me.game.HUD.addItem("grenades", new GrenadesHUD(80, 0, global.grenades));
+                me.game.HUD.addItem("points", new PointsHUD(224, 0, global.points));
+                me.game.HUD.addItem("lives", new LivesHUD(336, 0, global.lives));
+                me.game.HUD.addItem("zones", new ZonesHUD(432, 0, global.zones));
             },
 
             loadLevel: function (level) {
@@ -51,18 +53,34 @@ define(
             nextLevel: function () {
                 var prevLevelVitorc = me.game.getEntityByName("vitorc")[0];
                 this.loadLevel(me.game.currentLevel.nextLevel);
-                this.restoreVitorcProperties(prevLevelVitorc);
-                me.game.HUD.updateItemValue("zones", 1);
+
+                var vitorc = me.game.getEntityByName("vitorc")[0];
+                this.restoreVitorcProperties(vitorc, prevLevelVitorc);
+                this.setVitorcRespawnPosition(vitorc);
+
+                util.updateZones(1);
             },
 
-            restoreVitorcProperties: function (prevLevelVitorc) {
-                var vitorc = me.game.getEntityByName("vitorc")[0];
+            restoreVitorcProperties: function (vitorc, prevLevelVitorc) {
                 vitorc.pos.y = prevLevelVitorc.pos.y;
                 vitorc.vel.x = prevLevelVitorc.vel.x;
                 vitorc.vel.y = prevLevelVitorc.vel.y;
                 vitorc.setCurrentAnimation(prevLevelVitorc.current.name);
                 vitorc.falling = prevLevelVitorc.falling;
                 vitorc.jumping = prevLevelVitorc.jumping;
+            },
+
+            setVitorcRespawnPosition: function (vitorc) {
+                var x = vitorc.pos.x;
+                var y = vitorc.pos.y;
+
+                // find nearest ground tile
+                while (!me.game.collisionMap.getTile(x, y + vitorc.height)) {
+                    y++;
+                }
+
+                vitorc.respawn.x = x;
+                vitorc.respawn.y = y;
             },
 
             addStars: function () {

@@ -2,10 +2,12 @@ define(
     [
         "src/me",
         "src/config",
+        "src/util",
     ],
     function (
         me,
-        config
+        config,
+        util
     ) {
 
         var AmmoPackEntity = me.CollectableEntity.extend({
@@ -16,13 +18,14 @@ define(
 
                 this.updateColRect(2, 28, 2, 30);
             },
+
             onCollision: function (res, obj) {
                 if (obj.name != "vitorc") {
                     return;
                 }
                 this.collidable = false;
                 me.game.remove(this);
-                me.game.HUD.setItemValue("ammo", config.initialAmmo);
+                util.setAmmo(config.initialAmmo);
             },
 
         });

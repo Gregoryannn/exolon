@@ -1,10 +1,12 @@
 define(
     [
         "src/me",
+        "src/global",
         "src/entities/CircularExplosionEntity",
     ],
     function (
         me,
+        global,
         CircularExplosionEntity
     ) {
 
@@ -27,7 +29,7 @@ define(
                 this.setCurrentAnimation("normal");
                 this.vel.x = -MissileEntity.SPEED_X_NORMAL;
 
-                me.gamestat.updateValue("aliveMissilesCount", 1);
+                global.aliveMissilesCount++;
             },
 
             update: function () {
@@ -37,51 +39,51 @@ define(
             },
 
             updateMovement: function () {
-                    if (this.isCurrentAnimation("normal") && this.pos.x <= 280) {
-                        this.setCurrentAnimation("fast");
-                        this.vel.x = -MissileEntity.SPEED_X_FAST;
-                    }
+                if (this.isCurrentAnimation("normal") && this.pos.x <= 280) {
+                    this.setCurrentAnimation("fast");
+                    this.vel.x = -MissileEntity.SPEED_X_FAST;
+                }
 
-                    this.pos.x += this.vel.x;
+                this.pos.x += this.vel.x;
 
-                    if (this.pos.y > this.vitorc.pos.y) {
-                        this.pos.y -= MissileEntity.SPEED_Y;
-                    }
-                    else if (this.pos.y < this.vitorc.pos.y) {
-                        this.pos.y += MissileEntity.SPEED_Y;
-                    }
+                if (this.pos.y > this.vitorc.pos.y) {
+                    this.pos.y -= MissileEntity.SPEED_Y;
+                }
+                else if (this.pos.y < this.vitorc.pos.y) {
+                    this.pos.y += MissileEntity.SPEED_Y;
+                }
 
-                },
+            },
 
-                handleCollisions: function () {
-                    var res = me.game.collide(this);
-                    var hitVitorc = res && res.obj.name == "vitorc";
+            handleCollisions: function () {
+                var res = me.game.collide(this);
+                var hitVitorc = res && res.obj.name == "vitorc";
 
-                    if (this.pos.x < 0 || hitVitorc) {
-                        me.game.remove(this);
-                    }
-
-                    if (hitVitorc) {
-                        this.createExplosion();
-                    }
-                },
-
-                explode: function () {
+                if (this.pos.x < 0 || hitVitorc) {
                     me.game.remove(this);
+                }
+
+                if (hitVitorc) {
                     this.createExplosion();
-                },
+                }
+            },
 
-                createExplosion: function () {
-                    var explosion = new CircularExplosionEntity(this.pos.x, this.pos.y);
-                    me.game.add(explosion, this.z);
-                    me.game.sort.defer();
-                },
+            explode: function () {
+                me.game.remove(this);
+                this.createExplosion();
+            },
 
-                onDestroyEvent: function () {
-                    me.gamestat.updateValue("aliveMissilesCount", -1);
-                },
+            createExplosion: function () {
+                var explosion = new CircularExplosionEntity(this.pos.x, this.pos.y);
+                me.game.add(explosion, this.z);
+                me.game.sort.defer();
+            },
 
-            });
+            onDestroyEvent: function () {
+                global.aliveMissilesCount--;
+            },
+
+        });
 
         MissileEntity.WIDTH = 32;
         MissileEntity.HEIGHT = 32;

@@ -1,12 +1,14 @@
 define(
     [
         "src/me",
+        "src/global",
         "src/entities/ObstacleEntity",
         "src/entities/MissileEntity",
         "src/entities/AwardPointsEntity",
     ],
     function (
         me,
+        global,
         ObstacleEntity,
         MissileEntity,
         AwardPointsEntity
@@ -26,12 +28,12 @@ define(
                 if (this.vitorc == null) {
                     this.vitorc = me.game.getEntityByName("vitorc")[0];
                 }
-                if (me.gamestat.getItemValue("aliveMissilesCount") > 0 ||
-                    !this.alive ||
-                    this.vitorc.isCurrentAnimation("die")
-                ) {
-                    return false;
-                }
+      if (global.aliveMissilesCount > 0 ||
+                        !this.alive ||
+                        this.vitorc.isCurrentAnimation("die")
+                    ) {
+                        return false;
+                    }
 
                 this.missile = new MissileEntity(this.vitorc);
                 me.game.add(this.missile, this.vitorc.z);

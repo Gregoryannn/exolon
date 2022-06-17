@@ -1,10 +1,12 @@
 define(
     [
         "src/me",
+        "src/global",
         "src/entities/BlasterExplosion",
     ],
     function (
         me,
+        global,
         BlasterExplosion
     ) {
 
@@ -45,26 +47,26 @@ define(
             handleCollisions: function () {
                 var res = me.game.collide(this);
 
-                    if (this.vel.x == 0 || (res && (res.obj.isSolid || res.obj.isDestroyable))) {
-                        me.game.remove(this);
-                    }
+                if (this.vel.x == 0 || (res && (res.obj.isSolid || res.obj.isDestroyable))) {
+                    me.game.remove(this);
+                }
 
-                    if (res && res.obj.isSolid) {
-                        this.createExplosion();
-                    }
-                },
+                if (res && res.obj.isSolid) {
+                    this.createExplosion();
+                }
+            },
 
-                createExplosion: function () {
-                    var explosion = new BlasterExplosion(this.pos.x, this.pos.y - 5);
-                    me.game.add(explosion, this.z);
-                    me.game.sort.defer();
-                },
+            createExplosion: function () {
+                var explosion = new BlasterExplosion(this.pos.x, this.pos.y - 5);
+                me.game.add(explosion, this.z);
+                me.game.sort.defer();
+            },
 
-                onDestroyEvent: function () {
-                    me.gamestat.updateValue("aliveBlasterBulletCount", -1);
-                },
+            onDestroyEvent: function () {
+                global.aliveBlasterBulletCount--;
+            },
 
-            });
+        });
 
         BlasterBulletEntity.SPEED = 6;
         BlasterBulletEntity.WIDTH = 16;
