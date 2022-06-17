@@ -2,10 +2,12 @@ define(
     [
         "src/me",
         "src/util",
+        "src/screens",
     ],
     function (
         me,
-        util
+        util,
+        screens
     ) {
 
         var BonusScreen = me.ScreenObject.extend({
@@ -30,12 +32,29 @@ define(
                 this.fontCyan.set("left");
 
                 this.points = [0, 1000, 0, 3000, 0, 5000, 0, 7000];
+            },
+
+            onResetEvent: function () {
                 this.pointer = 0;
                 this.pointerTimer = 0;
                 this.pointerDuration = 1;
+
+                this.active = true;
+                this.firePressed = me.input.isKeyPressed('fire');
             },
 
             update: function () {
+                if (!this.active) {
+                    return false;
+                }
+
+                this.updatePointer();
+                this.handleInput();
+
+                return true;
+            },
+
+            updatePointer: function () {
                 this.pointerTimer++;
 
                 if (this.pointerTimer > this.pointerDuration) {
@@ -47,7 +66,19 @@ define(
                     }
                 }
 
-                return true;
+            },
+
+            handleInput: function () {
+                if (me.input.isKeyPressed('fire')) {
+                    if (!this.firePressed) {
+                        this.firePressed = true;
+                        this.active = false;
+                        util.executeWithDelay(function () { me.state.change(screens.PLAY); }, 1000);
+                    }
+                }
+                else {
+                    this.firePressed = false;
+                }
             },
 
             draw: function (context) {
@@ -59,26 +90,26 @@ define(
                 this.drawPointsAndPointer(context);
             },
 
-                drawPointsAndPointer: function (context) {
-                    var font = this.fontCyan;
+            drawPointsAndPointer: function (context) {
+                var font = this.fontCyan;
 
-                    for (var i in this.points) {
-                        font = font === this.fontCyan ? this.fontYellow : this.fontCyan;
+                for (var i in this.points) {
+                    font = font === this.fontCyan ? this.fontYellow : this.fontCyan;
 
-                        var str = util.strlpad(this.points[i], "0", 5);
-                        str += " POINTS";
+                    var str = util.strlpad(this.points[i], "0", 5);
+                    str += " POINTS";
 
-                        var x = 144;
-                        var y = 208 + i * 16;
-                        font.draw(context, str, x, y);
+                    var x = 144;
+                    var y = 208 + i * 16;
+                    font.draw(context, str, x, y);
 
-                        if (this.pointer == i) {
-                            context.drawImage(this.arrowImg, x + 13 * 16, y);
-                        }
+                    if (this.pointer == i) {
+                        context.drawImage(this.arrowImg, x + 13 * 16, y);
                     }
-                },
+                }
+            },
 
-            });
+        });
 
         return BonusScreen;
     });
