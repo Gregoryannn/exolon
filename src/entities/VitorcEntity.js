@@ -3,6 +3,7 @@ define(
         "src/me",
         "src/util",
         "src/config",
+        "src/global",
         "src/entities/BlasterBulletEntity",
         "src/entities/GrenadeEntity",
         "src/entities/GrenadeTraceEntity",
@@ -12,6 +13,7 @@ define(
         me,
         util,
         config,
+        global,
         BlasterBulletEntity,
         GrenadeEntity,
         GrenadeTraceEntity,
@@ -25,7 +27,6 @@ define(
                 settings.spritewidth = 48;
 
                 this.parent(x, y, settings);
-
                 this.collidable = true;
 
                 this.addAnimation("stand", [0]);
@@ -36,23 +37,18 @@ define(
                 this.addAnimation("fall", [8]);
 
                 this.setCurrentAnimation("stand");
-
                 this.animationspeed = 2;
-
                 this.setVelocity(1.5, 2.75);
                 this.gravity = 0.1;
 
                 this.firePressed = false;
                 this.jumpPressed = false;
-
                 this.grenadeFireDuration = 35;
                 this.grenadeFireTimer = 0;
 
                 this.direction = "right";
-
                 this.dieTimer = 0;
                 this.dieDuration = 70;
-
                 this.invincible = false;
 
                 this.insideTeleport = false;
@@ -76,389 +72,385 @@ define(
             },
 
             updateJump: function () {
-                    if (!this.isCurrentAnimation("jump")) {
-                        return;
-                    }
-                    if (this.vel.x != 0 && this.falling) {
-                        this.jumpDistance += Math.abs(this.vel.x);
-                        if (this.jumpDistance > VitorcEntity.JUMP_DISTANCE) {
-                            this.setCurrentAnimation("fall");
-                            this.jumpDistance = 0;
-                        }
-                    }
-                    if (this.isOnTheGround()) {
-                        this.setCurrentAnimation("stand");
+                if (!this.isCurrentAnimation("jump")) {
+                    return;
+                }
+                if (this.vel.x != 0 && this.falling) {
+                    this.jumpDistance += Math.abs(this.vel.x);
+                    if (this.jumpDistance > VitorcEntity.JUMP_DISTANCE) {
+                        this.setCurrentAnimation("fall");
                         this.jumpDistance = 0;
                     }
-                },
-
-                updateDieTimer: function () {
-                    if (!this.isCurrentAnimation("die")) {
-                        return;
-                    }
-                    if (!this.isOnTheGround()) {
-                        return;
-                    }
-                    this.dieTimer++;
-                    if (this.dieTimer > this.dieDuration) {
-                        this.dieTimer = 0;
-
-                        if (me.game.HUD.getItemValue("lives") == 0) {
-                            // game over
-                        }
-                        else {
-                            this.setCurrentAnimation("stand");
-                            this.respawn();
-                            this.makeTemporarilyInvincible();
-
-                            me.game.HUD.updateItemValue("lives", -1);
-                            me.game.HUD.setItemValue("ammo", config.initialAmmo);
-                            me.game.HUD.setItemValue("grenades", config.initialGrenades);
-                        }
-                    }
-                },
-
-                handleInput: function () {
-                    if (this.isCurrentAnimation("die")) {
-                        return;
-                    }
-
-                    this.handleFireKey();
-
-                    if (this.falling) {
-                        return;
-                    }
-                    else if (this.isCurrentAnimation("jump")) {
-                        this.handleInputDuringJump();
-                    }
-                    else {
-                        this.handleInputOnTheGround();
-                    }
-                },
-
-                handleCollisionsWithCollisionMap: function (res) {
-                    if (!this.isCurrentAnimation("jump") && res.x) {
-                        this.setCurrentAnimation("stand");
-                    }
-                },
-
-                handleCollisionsWithEntities: function () {
-                    this.insideTeleport = false;
-
-                    var res = me.game.collide(this);
-                    if (!res) {
-                        return;
-                    }
-
-                    this.handleCollisionWithSolidObject(res, res.obj);
-                    this.handleCollisionWithTeleport(res, res.obj);
-                    this.handleCollisionWithMine(res, res.obj);
-                },
-
-                handleCollisionWithSolidObject: function (res, obj) {
-                    if (!obj.isSolid) {
-                        return;
-                    }
-
-                    this.pos.sub(res);
-
-                    if (res.y > 0) {
-                        this.vel.y = 0;
-                        this.falling = false;
-                    }
-
-                    if (res.x && this.isOnTheGround()) {
-                        this.vel.x = 0;
-                        this.setCurrentAnimation("stand");
-                    }
-                },
-
-                handleCollisionWithTeleport: function (res, obj) {
-                    if (obj.name == "teleport") {
-                        this.insideTeleport = true;
-                        this.thisTeleportGUID = obj.GUID;
-                    }
-                },
-
-                handleCollisionWithMine: function (res, obj) {
-                    if (obj.name == "mine") {
-                        this.die();
-                    }
-                },
-
-                onCollision: function (res, obj) {
-                    if (this.isCurrentAnimation("die")) {
-                        return;
-                    }
-
-                    if (obj.isLethal) {
-                        this.die();
-                    }
-                },
-
-                handleFallFromPlatform: function () {
-                    if (!this.isCurrentAnimation("jump") && !this.isCurrentAnimation("die") && this.falling) {
-                        this.vel.x = 0;
-                        this.setCurrentAnimation("fall");
-                    }
-                },
-
-                handleNextScreen: function () {
-                    if (this.pos.x > 510) {
-                        me.state.current().nextLevel();
-                    }
-                },
-
-                handleFireKey: function () {
-                    if (me.input.isKeyPressed("fire")) {
-                        this.fireBlaster();
-                        this.fireGrenade();
-                        this.firePressed = true;
-                        this.grenadeFireTimer++;
-                    }
-                    else {
-                        this.firePressed = false;
-                        this.grenadeFireTimer = 0;
-                    }
-                },
-
-                handleInputDuringJump: function () {
-                    if (me.input.isKeyPressed("right") && this.direction == "right") {
-                        this.doWalk(false);
-                    }
-                    else if (me.input.isKeyPressed("left") && this.direction == "left") {
-                        this.doWalk(true);
-                    }
-                },
-
-                handleInputOnTheGround: function () {
-                    if (me.input.isKeyPressed("duck")) {
-                        this.duck();
-                        return;
-                    }
-
-                    this.stand();
-
-                    if (me.input.isKeyPressed("right")) {
-                        this.direction = "right";
-                        this.setCurrentAnimation("move");
-                        this.doWalk(false);
-                    }
-                    else if (me.input.isKeyPressed("left")) {
-                        this.direction = "left";
-                        this.setCurrentAnimation("move");
-                        this.doWalk(true);
-                    }
-
-                    this.handleJumpKey();
-                },
-
-                handleJumpKey: function () {
-                    if (!me.input.isKeyPressed("jump")) {
-                        this.jumpPressed = false;
-                        return;
-                    }
-
-                    if (this.insideTeleport) {
-                        if (!this.jumpPressed) {
-                            this.doTeleport();
-                        }
-                    }
-                    else {
-                        this.setCurrentAnimation("jump");
-                        this.doJump();
-                    }
-
-                    this.jumpPressed = true;
-                },
-
-                fireBlaster: function () {
-                    if (!this.canFireBlaster()) {
-                        return;
-                    }
-                    var pos = this.getBlasterBulletPosition();
-                    var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
-                    me.game.add(bullet, this.z);
-                    me.game.sort.defer();
-
-                    me.gamestat.updateValue("aliveBlasterBulletCount", 1);
-
-                    if (me.game.HUD.getItemValue("ammo") > 0) {
-                        me.game.HUD.updateItemValue("ammo", -1);
-                    }
-                },
-
-                fireGrenade: function () {
-                    if (!this.canFireGrenade()) {
-                        return;
-                    }
-                    var grenadePos = this.getGrenadePosition();
-                    var grenade = new GrenadeEntity(grenadePos.x, grenadePos.y, this.direction);
-                    me.game.add(grenade, this.z);
-
-                    var tracePos = this.getGrenadeTracePosition();
-                    var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
-                    me.game.add(trace, this.z);
-
-                    me.game.sort.defer();
-
-                    me.gamestat.updateValue("aliveGrenadesCount", 1);
-
-                    if (me.game.HUD.getItemValue("grenades") > 0) {
-                        me.game.HUD.updateItemValue("grenades", -1);
-                    }
-                },
-
-                duck: function () {
-                    this.setCurrentAnimation("duck");
-                    this.vel.x = 0;
-                    this.updateColRect(-1, 0, 11, 53);
-                },
-
-                stand: function () {
+                }
+                if (this.isOnTheGround()) {
                     this.setCurrentAnimation("stand");
-                    this.vel.x = 0;
-                    this.updateColRect(-1, 0, 0, 64);
-                },
+                    this.jumpDistance = 0;
+                }
+            },
 
-                die: function () {
-                    if (this.invincible) {
+            updateDieTimer: function () {
+                if (!this.isCurrentAnimation("die")) {
+                    return;
+                }
+                if (!this.isOnTheGround()) {
+                    return;
+                }
+                this.dieTimer++;
+                if (this.dieTimer > this.dieDuration) {
+                    if (global.lives > 0) {
+                        util.updateLives(-1);
+                    }
+
+                    if (global.lives == 0) {
+                     me.state.current().gameOver();
                         return;
                     }
 
-                    this.setCurrentAnimation("die");
+                    this.dieTimer = 0;
+                    this.setCurrentAnimation("stand");
+                    this.respawn();
+                    this.makeTemporarilyInvincible();
+
+                    util.setAmmo(config.initialAmmo);
+                    util.setGrenades(config.initialGrenades);
+                }
+            },
+
+            handleInput: function () {
+                if (this.isCurrentAnimation("die")) {
+                    return;
+                }
+
+                this.handleFireKey();
+
+                if (this.falling) {
+                    return;
+                }
+                else if (this.isCurrentAnimation("jump")) {
+                    this.handleInputDuringJump();
+                }
+                else {
+                    this.handleInputOnTheGround();
+                }
+            },
+
+            handleCollisionsWithCollisionMap: function (res) {
+                if (!this.isCurrentAnimation("jump") && res.x) {
+                    this.setCurrentAnimation("stand");
+                }
+            },
+
+            handleCollisionsWithEntities: function () {
+                this.insideTeleport = false;
+
+                var res = me.game.collide(this);
+                if (!res) {
+                    return;
+                }
+
+                this.handleCollisionWithSolidObject(res, res.obj);
+                this.handleCollisionWithTeleport(res, res.obj);
+                this.handleCollisionWithMine(res, res.obj);
+            },
+
+            handleCollisionWithSolidObject: function (res, obj) {
+                if (!obj.isSolid) {
+                    return;
+                }
+
+                this.pos.sub(res);
+
+                if (res.y > 0) {
+                    this.vel.y = 0;
+                    this.falling = false;
+                }
+
+                if (res.x && this.isOnTheGround()) {
                     this.vel.x = 0;
-                    this.forceJump();
-                },
+                    this.setCurrentAnimation("stand");
+                }
+            },
 
-                respawn: function () {
-                    this.pos.x = this.respawn.x;
-                    this.pos.y = this.respawn.y;
-                },
+            handleCollisionWithTeleport: function (res, obj) {
+                if (obj.name == "teleport") {
+                    this.insideTeleport = true;
+                    this.thisTeleportGUID = obj.GUID;
+                }
+            },
 
-                makeTemporarilyInvincible: function () {
-                    var self = this;
-                    this.invincible = true;
-                    util.executeWithDelay(function () {
-                        self.invincible = false;
-                    }, VitorcEntity.INVINCIBILITY_DURATION);
-                },
+            handleCollisionWithMine: function (res, obj) {
+                if (obj.name == "mine") {
+                    this.die();
+                }
+            },
 
-                doTeleport: function () {
-                    var teleports = me.game.getEntityByName("teleport");
-                    this.createTeleportFlashes(teleports);
-                    var otherTeleport = this.getOtherTeleport(teleports);
-                    this.pos.x = otherTeleport.pos.x;
-                    this.pos.y = otherTeleport.pos.y + 32;
-                },
+            onCollision: function (res, obj) {
+                if (this.isCurrentAnimation("die")) {
+                    return;
+                }
 
-                createTeleportFlashes: function (teleports) {
-                    for (var i in teleports) {
-                        var x = teleports[i].pos.x + 16;
-                        var y = teleports[i].pos.y + 32;
-                        var flash = new TeleportFlashEntity(x, y);
-                        me.game.add(flash, this.z + 1);
+                if (obj.isLethal) {
+                    this.die();
+                }
+            },
+
+            handleFallFromPlatform: function () {
+                if (!this.isCurrentAnimation("jump") && !this.isCurrentAnimation("die") && this.falling) {
+                    this.vel.x = 0;
+                    this.setCurrentAnimation("fall");
+                }
+            },
+
+            handleNextScreen: function () {
+                if (this.pos.x > 510) {
+                    me.state.current().nextLevel();
+                }
+            },
+
+            handleFireKey: function () {
+                if (me.input.isKeyPressed("fire")) {
+                    this.fireBlaster();
+                    this.fireGrenade();
+                    this.firePressed = true;
+                    this.grenadeFireTimer++;
+                }
+                else {
+                    this.firePressed = false;
+                    this.grenadeFireTimer = 0;
+                }
+            },
+
+            handleInputDuringJump: function () {
+                if (me.input.isKeyPressed("right") && this.direction == "right") {
+                    this.doWalk(false);
+                }
+                else if (me.input.isKeyPressed("left") && this.direction == "left") {
+                    this.doWalk(true);
+                }
+            },
+
+            handleInputOnTheGround: function () {
+                if (me.input.isKeyPressed("duck")) {
+                    this.duck();
+                    return;
+                }
+
+                this.stand();
+
+                if (me.input.isKeyPressed("right")) {
+                    this.direction = "right";
+                    this.setCurrentAnimation("move");
+                    this.doWalk(false);
+                }
+                else if (me.input.isKeyPressed("left")) {
+                    this.direction = "left";
+                    this.setCurrentAnimation("move");
+                    this.doWalk(true);
+                }
+
+                this.handleJumpKey();
+            },
+
+            handleJumpKey: function () {
+                if (!me.input.isKeyPressed("jump")) {
+                    this.jumpPressed = false;
+                    return;
+                }
+
+                if (this.insideTeleport) {
+                    if (!this.jumpPressed) {
+                        this.doTeleport();
                     }
-                    me.game.sort.defer();
-                },
+                }
+                else {
+                    this.setCurrentAnimation("jump");
+                    this.doJump();
+                }
 
-                getOtherTeleport: function (teleports) {
-                    for (var i in teleports) {
-                        if (teleports[i].GUID != this.thisTeleportGUID) {
-                            return teleports[i];
-                        }
-                    }
-                    return null;
-                },
+                this.jumpPressed = true;
+            },
 
-                getBlasterBulletPosition: function () {
-                    var pos = {};
+            fireBlaster: function () {
+                if (!this.canFireBlaster()) {
+                    return;
+                }
+                var pos = this.getBlasterBulletPosition();
+                var bullet = new BlasterBulletEntity(pos.x, pos.y, this.direction);
+                me.game.add(bullet, this.z);
+                me.game.sort.defer();
 
-                    if (this.direction == "right") {
-                        pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                    }
-                    else {
-                        pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
-                    }
+                global.aliveBlasterBulletCount++;
+                util.updateAmmo(-1);
+            },
 
-                    if (this.isCurrentAnimation("duck")) {
-                        pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                    }
-                    else {
-                        pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
-                    }
+            fireGrenade: function () {
+                if (!this.canFireGrenade()) {
+                    return;
+                }
+                var grenadePos = this.getGrenadePosition();
+                var grenade = new GrenadeEntity(grenadePos.x, grenadePos.y, this.direction);
+                me.game.add(grenade, this.z);
 
-                    return pos;
-                },
+                var tracePos = this.getGrenadeTracePosition();
+                var trace = new GrenadeTraceEntity(tracePos.x, tracePos.y, this.direction);
+                me.game.add(trace, this.z);
 
-                getGrenadePosition: function () {
-                    var pos = {};
+                me.game.sort.defer();
 
-                    if (this.direction == "right") {
-                        pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
-                    }
-                    else {
-                        pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
-                    }
+                global.aliveGrenadesCount++;
+                util.updateGrenades(-1);
+            },
 
-                    if (this.isCurrentAnimation("duck")) {
-                        pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                    }
-                    else {
-                        pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
-                    }
+            duck: function () {
+                this.setCurrentAnimation("duck");
+                this.vel.x = 0;
+                this.updateColRect(-1, 0, 11, 53);
+            },
 
-                    return pos;
-                },
+            stand: function () {
+                this.setCurrentAnimation("stand");
+                this.vel.x = 0;
+                this.updateColRect(-1, 0, 0, 64);
+            },
 
-                getGrenadeTracePosition: function () {
-                    var pos = {};
+            die: function () {
+                if (this.invincible) {
+                    return;
+                }
 
-                    if (this.direction == "right") {
-                        pos.x = this.pos.x + VitorcEntity.GRENADE_TRACE_OFFSET_X;
-                    }
-                    else {
-                        pos.x = this.pos.x + this.width - GrenadeTraceEntity.WIDTH - VitorcEntity.GRENADE_TRACE_OFFSET_X;
-                    }
+                this.setCurrentAnimation("die");
+                this.vel.x = 0;
+                this.forceJump();
+            },
 
-                    if (this.isCurrentAnimation("duck")) {
-                        pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
-                    }
-                    else {
-                        pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y;
-                    }
+            respawn: function () {
+                this.pos.x = this.respawn.x;
+                this.pos.y = this.respawn.y;
+            },
 
-                    return pos;
-                },
+            makeTemporarilyInvincible: function () {
+                var self = this;
+                this.invincible = true;
+                util.executeWithDelay(function () {
+                    self.invincible = false;
+                }, VitorcEntity.INVINCIBILITY_DURATION);
+            },
 
-                isOnTheGround: function () {
-                    return !this.jumping && !this.falling;
-                },
+            doTeleport: function () {
+                var teleports = me.game.getEntityByName("teleport");
+                this.createTeleportFlashes(teleports);
+                var otherTeleport = this.getOtherTeleport(teleports);
+                this.pos.x = otherTeleport.pos.x;
+                this.pos.y = otherTeleport.pos.y + 32;
+            },
 
-                canFireBlaster: function () {
-                    if (this.firePressed || me.game.HUD.getItemValue("ammo") == 0) {
-                        return false;
-                    }
-                    return true;
-                },
+            createTeleportFlashes: function (teleports) {
+                for (var i in teleports) {
+                    var x = teleports[i].pos.x + 16;
+                    var y = teleports[i].pos.y + 32;
+                    var flash = new TeleportFlashEntity(x, y);
+                    me.game.add(flash, this.z + 1);
+                }
+                me.game.sort.defer();
+            },
 
-                canFireGrenade: function () {
-                    if (me.gamestat.getItemValue("aliveBlasterBulletCount") > 0) {
-                        return false;
+            getOtherTeleport: function (teleports) {
+                for (var i in teleports) {
+                    if (teleports[i].GUID != this.thisTeleportGUID) {
+                        return teleports[i];
                     }
-                    if (me.gamestat.getItemValue("aliveGrenadesCount") > 0) {
-                        return false;
-                    }
-                    if (this.grenadeFireTimer < this.grenadeFireDuration) {
-                        return false;
-                    }
-                    if (me.game.HUD.getItemValue("grenades") == 0) {
-                        return false;
-                    }
-                    return true;
-                },
+                }
+                return null;
+            },
 
-            });
+            getBlasterBulletPosition: function () {
+                var pos = {};
+
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + this.width + VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x - BlasterBulletEntity.WIDTH - VitorcEntity.BLASTER_BULLET_OFFSET_X;
+                }
+
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.BLASTER_BULLET_OFFSET_Y;
+                }
+
+                return pos;
+            },
+
+            getGrenadePosition: function () {
+                var pos = {};
+
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + VitorcEntity.GRENADE_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x + this.width - GrenadeEntity.WIDTH - VitorcEntity.GRENADE_OFFSET_X;
+                }
+
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_OFFSET_Y;
+                }
+
+                return pos;
+            },
+
+            getGrenadeTracePosition: function () {
+                var pos = {};
+
+                if (this.direction == "right") {
+                    pos.x = this.pos.x + VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                }
+                else {
+                    pos.x = this.pos.x + this.width - GrenadeTraceEntity.WIDTH - VitorcEntity.GRENADE_TRACE_OFFSET_X;
+                }
+
+                if (this.isCurrentAnimation("duck")) {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y + VitorcEntity.DUCK_OFFSET;
+                }
+                else {
+                    pos.y = this.pos.y + VitorcEntity.GRENADE_TRACE_OFFSET_Y;
+                }
+
+                return pos;
+            },
+
+            isOnTheGround: function () {
+                return !this.jumping && !this.falling;
+            },
+
+            canFireBlaster: function () {
+                if (this.firePressed || global.ammo == 0) {
+                    return false;
+                }
+                return true;
+            },
+
+            canFireGrenade: function () {
+                if (global.aliveBlasterBulletCount > 0) {
+                    return false;
+                }
+                if (global.aliveGrenadesCount > 0) {
+                    return false;
+                }
+                if (this.grenadeFireTimer < this.grenadeFireDuration) {
+                    return false;
+                }
+                if (global.grenades == 0) {
+                    return false;
+                }
+                return true;
+            },
+
+        });
 
         VitorcEntity.DUCK_OFFSET = 10;
 
