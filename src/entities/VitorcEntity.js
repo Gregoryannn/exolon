@@ -27,6 +27,7 @@ define(
                 settings.spritewidth = 48;
 
                 this.parent(x, y, settings);
+
                 this.collidable = true;
 
                 this.addAnimation("stand", [0]);
@@ -37,18 +38,23 @@ define(
                 this.addAnimation("fall", [8]);
 
                 this.setCurrentAnimation("stand");
+
                 this.animationspeed = 2;
+
                 this.setVelocity(1.5, 2.75);
                 this.gravity = 0.1;
 
-                this.firePressed = false;
+                this.firePressed = me.input.isKeyPressed('fire');
                 this.jumpPressed = false;
+
                 this.grenadeFireDuration = 35;
                 this.grenadeFireTimer = 0;
 
                 this.direction = "right";
+
                 this.dieTimer = 0;
                 this.dieDuration = 70;
+
                 this.invincible = false;
 
                 this.insideTeleport = false;
@@ -102,7 +108,7 @@ define(
                     }
 
                     if (global.lives == 0) {
-                     me.state.current().gameOver();
+                        me.state.current().gameOver();
                         return;
                     }
 
