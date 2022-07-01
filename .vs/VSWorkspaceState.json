@@ -1,7 +1,6 @@
 {
   "ExpandedNodes": [
     "",
-    "\\images",
     "\\maps",
     "\\src",
     "\\src\\entities",
@@ -9,6 +8,6 @@
     "\\src\\resources",
     "\\src\\screens"
   ],
-  "SelectedNode": "\\src\\config.js",
+  "SelectedNode": "\\src\\resources\\maps.js",
   "PreviewInSolutionExplorer": false
 }
