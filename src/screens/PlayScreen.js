@@ -101,42 +101,44 @@ define(
                 var x = vitorc.pos.x;
                 var y = vitorc.pos.y;
 
-                // find nearest ground tile
-                while (!me.game.collisionMap.getTile(x, y + vitorc.height)) {
-                    y++;
-                }
-
-                vitorc.respawn.x = x;
-                vitorc.respawn.y = y;
-            },
-
-            addStars: function () {
-                var colors = [10, 11, 12, 13, 14];
-                var layer = me.game.currentLevel.getLayerByName("Stars");
-
-                var i = 0;
-                while (i < PlayScreen.STARS_COUNT) {
-                    var x = util.getRandomInt(0, 31);
-                    var y = util.getRandomInt(0, 17);
-                    if (layer.getTileId(x, y)) {
-                        continue;
+                    // find nearest ground tiles
+                    while (!me.game.collisionMap.getTile(x, y + vitorc.height) &&
+                        !me.game.collisionMap.getTile(x + 16, y + vitorc.height) &&
+                        !me.game.collisionMap.getTile(x + 32, y + vitorc.height)) {
+                        y++;
                     }
-                    layer.setTile(x, y, util.arrayRandomElement(colors));
-                    i++;
-                }
-            },
 
-            addHarbringerCreator: function () {
-                var creator = new HarbringerCreatorEntity();
-                me.game.add(creator, 999);
-                me.game.sort.defer();
-            },
+                    vitorc.respawn.x = x;
+                    vitorc.respawn.y = y;
+                },
 
-            onDestroyEvent: function () {
-                me.game.disableHUD();
-            },
+                addStars: function () {
+                    var colors = [10, 11, 12, 13, 14];
+                    var layer = me.game.currentLevel.getLayerByName("Stars");
 
-        });
+                    var i = 0;
+                    while (i < PlayScreen.STARS_COUNT) {
+                        var x = util.getRandomInt(0, 31);
+                        var y = util.getRandomInt(0, 17);
+                        if (layer.getTileId(x, y)) {
+                            continue;
+                        }
+                        layer.setTile(x, y, util.arrayRandomElement(colors));
+                        i++;
+                    }
+                },
+
+                addHarbringerCreator: function () {
+                    var creator = new HarbringerCreatorEntity();
+                    me.game.add(creator, 999);
+                    me.game.sort.defer();
+                },
+
+                onDestroyEvent: function() {
+                    me.game.disableHUD();
+                },
+
+            });
 
         PlayScreen.STARS_COUNT = 50;
         return PlayScreen;
